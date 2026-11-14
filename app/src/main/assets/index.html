@@ -1,0 +1,815 @@
+<!doctype html>
+<html lang="uz">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Membrana hisobchisi</title>
+<style>html{color-scheme:light}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<style>
+/* Layout: sticky header with live totals, one section per bottom tab, 3D stage in its own tab.
+   Palette: steel-blue greys with a deep teal accent; green/amber/red are semantic only. */
+:root{
+  --bg:#F3F5F7; --surface:#FFFFFF; --surface2:#E9EEF2; --ink:#14212B; --muted:#586674; --line:#D9E0E7;
+  --accent:#0E6B78; --accent-ink:#FFFFFF; --good:#1D8A59; --warn:#A8690F; --bad:#BE3B2B;
+  --ground:#DDE4EA; --grid:#C3CCD5;
+  --font-display:'Space Grotesk',system-ui,sans-serif; --font-body:'Inter',system-ui,sans-serif;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0E161E; --surface:#16212B; --surface2:#1E2B37; --ink:#E6EDF3; --muted:#91A0AF; --line:#263544;
+    --accent:#4DC0CF; --accent-ink:#06222A; --good:#4FC38A; --warn:#E0A64A; --bad:#EE7B6B;
+    --ground:#1B2732; --grid:#2D3C4B; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0E161E; --surface:#16212B; --surface2:#1E2B37; --ink:#E6EDF3; --muted:#91A0AF; --line:#263544;
+  --accent:#4DC0CF; --accent-ink:#06222A; --good:#4FC38A; --warn:#E0A64A; --bad:#EE7B6B;
+  --ground:#1B2732; --grid:#2D3C4B; color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--font-body);font-size:15px;line-height:1.5;
+  padding-bottom:92px;font-variant-numeric:tabular-nums}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:var(--bg);z-index:10}
+h1,h2,h3{font-family:var(--font-display);margin:0;line-height:1.2;text-wrap:balance}
+h2{font-size:19px;margin-bottom:10px}
+h3{font-size:15px;margin:18px 0 8px}
+p{margin:0 0 10px}
+.wrap{max-width:980px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:9;background:var(--bg);border-bottom:1px solid var(--line)}
+.top .wrap{padding-block:10px}
+.top h1{font-size:17px}
+.top small{color:var(--muted);font-size:12px}
+.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:8px}
+.stat{min-width:0}
+.stat b{display:block;font-family:var(--font-display);font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.stat span{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+main{padding-block:16px}
+section[hidden]{display:none}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:14px}
+.grid{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr))}
+.seg{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0 12px}
+.seg button{flex:1 1 auto;min-width:0;min-height:42px;padding:8px 10px;border:1px solid var(--line);background:var(--surface);
+  color:var(--ink);border-radius:8px;font:inherit;font-size:14px;cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);font-weight:600}
+button.plain{min-height:42px;padding:8px 12px;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:8px;font:inherit;font-size:14px;cursor:pointer}
+button.prim{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);font-weight:600}
+button:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.fld{margin-bottom:12px;min-width:0}
+.fld label{display:block;font-size:13px;color:var(--muted);margin-bottom:4px}
+.fld label em{font-style:normal;color:var(--ink)}
+.pair{display:flex;gap:10px;align-items:center}
+.pair input[type=range]{flex:1;min-width:0;accent-color:var(--accent)}
+input[type=number]{width:96px;min-height:40px;padding:6px 8px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink);font:inherit;font-size:16px}
+.hint{font-size:13px;color:var(--muted)}
+.note{font-size:13px;color:var(--muted);border-left:3px solid var(--line);padding:2px 0 2px 10px;margin:10px 0}
+.note.warn{border-color:var(--warn);color:var(--ink)}
+.note.bad{border-color:var(--bad);color:var(--ink)}
+.kv{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,150px),1fr));gap:10px}
+.kv div{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px 12px;min-width:0}
+.kv b{display:block;font-family:var(--font-display);font-size:20px;line-height:1.25;overflow-wrap:anywhere}
+.kv span{font-size:12px;color:var(--muted)}
+.bars .row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 10px;padding:6px 0;border-bottom:1px solid var(--line);font-size:14px}
+.bars .row i{grid-column:1/-1;display:block;height:5px;border-radius:3px;background:var(--surface2);overflow:hidden}
+.bars .row i u{display:block;height:100%;background:var(--accent)}
+.bars .tot{font-weight:600}
+.bars .tot.big{font-size:16px}
+.pos{color:var(--good)} .neg{color:var(--bad)}
+canvas.chart{width:100%;height:230px;display:block}
+.legend{display:flex;flex-wrap:wrap;gap:14px;font-size:12px;color:var(--muted);margin-top:6px}
+.legend span::before{content:"";display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:5px;background:var(--c)}
+details{margin-top:12px}
+summary{cursor:pointer;font-weight:600;padding:8px 0}
+.matrix{display:grid;grid-template-columns:22px repeat(5,minmax(0,1fr));gap:3px;font-size:11px;max-width:420px}
+.matrix .cell{min-height:44px;border-radius:5px;display:flex;flex-wrap:wrap;gap:2px;align-items:center;justify-content:center;padding:2px;font-weight:600;color:var(--ink)}
+.matrix .ax{display:flex;align-items:center;justify-content:center;color:var(--muted)}
+.c-low{background:color-mix(in srgb,var(--good) 25%,var(--surface))}
+.c-mid{background:color-mix(in srgb,var(--warn) 28%,var(--surface))}
+.c-high{background:color-mix(in srgb,var(--bad) 30%,var(--surface))}
+.risk{padding:12px 0;border-bottom:1px solid var(--line)}
+.risk h4{margin:0 0 4px;font-size:14px;font-weight:600}
+.risk .meta{display:flex;flex-wrap:wrap;gap:8px;align-items:center;font-size:12px;color:var(--muted);margin-bottom:6px}
+.chip{padding:1px 8px;border-radius:99px;border:1px solid var(--line);font-size:11px;color:var(--muted)}
+.badge{min-width:28px;text-align:center;padding:1px 8px;border-radius:99px;font-weight:600;font-size:12px;color:var(--ink)}
+.risk .two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.risk .two label{font-size:12px;color:var(--muted);display:block}
+.risk input[type=range]{width:100%;accent-color:var(--accent)}
+.stage{position:relative;height:min(62vh,540px);min-height:300px;border-radius:10px;overflow:hidden;background:var(--surface2);border:1px solid var(--line)}
+.stage canvas{width:100%;height:100%;display:block;touch-action:none}
+.stage .msg[hidden]{display:none}
+.stage .msg{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:20px;text-align:center;color:var(--muted)}
+.ctl{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0;align-items:center}
+.ctl label{display:flex;gap:6px;align-items:center;font-size:14px;min-height:36px}
+.nav{position:fixed;left:0;right:0;bottom:0;z-index:20;display:flex;gap:4px;background:var(--surface);border-top:1px solid var(--line);
+  padding:6px max(8px,env(safe-area-inset-right,0px)) calc(6px + env(safe-area-inset-bottom,0px)) max(8px,env(safe-area-inset-left,0px))}
+.nav button{flex:1;min-width:0;min-height:48px;border:0;background:transparent;color:var(--muted);font:inherit;font-size:13px;border-radius:8px;cursor:pointer;
+  border-top:3px solid transparent}
+.nav button[aria-current="page"]{color:var(--accent);font-weight:600;border-top-color:var(--accent)}
+.foot{margin-top:16px;display:flex;flex-wrap:wrap;gap:8px}
+table{border-collapse:collapse;width:100%;font-size:13px}
+th,td{text-align:left;padding:6px 8px;border-bottom:1px solid var(--line)}
+.scroll{overflow-x:auto}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+
+
+<div class="top">
+  <div class="wrap">
+    <h1>Membrana hisobchisi <small id="subtitle"></small></h1>
+    <div class="stats">
+      <div class="stat"><b id="st-area">-</b><span>Membrana</span></div>
+      <div class="stat"><b id="st-price">-</b><span>Narx</span></div>
+      <div class="stat"><b id="st-profit">-</b><span>Foyda</span></div>
+    </div>
+  </div>
+</div>
+
+<main class="wrap">
+
+<!-- ============ LOYIHA ============ -->
+<section id="tab-proj">
+  <h2>Loyiha</h2>
+  <div class="hint">Tayyor namunadan boshlang yoki o'zingizning o'lchamlaringizni kiriting.</div>
+  <div class="seg" id="presets">
+    <button type="button" data-preset="stad">Namuna: stadion tomi</button>
+    <button type="button" data-preset="hypar">Namuna: pavilyon</button>
+    <button type="button" data-preset="umb">Namuna: daraxtsimon soyabon</button>
+    <button type="button" data-preset="cone">Namuna: chodir</button>
+  </div>
+
+  <h3>Konstruksiya shakli</h3>
+  <div class="seg" data-seg="shape">
+    <button type="button" data-v="hypar">Pavilyon (egar)</button>
+    <button type="button" data-v="cone">Chodir (konus)</button>
+    <button type="button" data-v="arch">Arka tom</button>
+    <button type="button" data-v="umb">Teskari soyabon</button>
+    <button type="button" data-v="stad">Stadion halqasi</button>
+  </div>
+  <div class="hint" id="shape-hint"></div>
+
+  <h3>O'lchamlar</h3>
+  <div class="grid" id="dims"></div>
+
+  <h3>Joylashuv va material</h3>
+  <div class="hint">Hudud mehnat narxi, po'lat zaxirasi va ba'zi risklarga ta'sir qiladi.</div>
+  <div class="seg" data-seg="region">
+    <button type="button" data-v="jp">Yaponiya</button>
+    <button type="button" data-v="sa">Saudiya Arabistoni</button>
+    <button type="button" data-v="uz">O'zbekiston</button>
+  </div>
+  <div class="seg" data-seg="mtype">
+    <button type="button" data-v="PVC">PVC / PVDF</button>
+    <button type="button" data-v="PTFE">PTFE (shisha tola)</button>
+    <button type="button" data-v="ETFE">ETFE yostiqcha</button>
+  </div>
+  <div class="hint" id="mat-hint"></div>
+
+  <div class="foot">
+    <button type="button" class="plain prim" id="btn-copy">Natijani nusxalash</button>
+    <button type="button" class="plain" id="btn-reset">Boshlang'ich holatga qaytarish</button>
+  </div>
+  <div class="note" id="copy-note" hidden></div>
+  <div class="note">Bu taxminiy konsept hisob. Yakuniy o'lcham, kuchlanish va narx muhandis hisobi hamda ta'minotchi taklifi bilan tasdiqlanishi shart.</div>
+</section>
+
+<!-- ============ O'LCHAM ============ -->
+<section id="tab-size" hidden>
+  <h2>Membrana o'lchami</h2>
+  <p class="hint">Sirt maydoni 3D to'rdagi uchburchaklar yig'indisidan topiladi, shuning uchun egrilik hisobga olinadi.</p>
+  <div class="kv" id="size-kv"></div>
+  <div id="size-notes"></div>
+  <h3>Rulon bo'yicha hisob</h3>
+  <div class="scroll"><table id="roll-table"></table></div>
+  <h3>Hisob qoidasi</h3>
+  <p class="hint">Yalpi maydon = sof sirt x (1 + kesish chiqindisi). Rulon soni = yalpi maydon x qavatlar / rulon eni / rulon uzunligi. Po'lat og'irligi = reja maydoni x shaklga mos koeffitsient. Qiymatlarni Pul bo'limida o'zgartirish mumkin.</p>
+</section>
+
+<!-- ============ PUL ============ -->
+<section id="tab-money" hidden>
+  <h2>Kirim va chiqim</h2>
+  <div class="kv" id="money-kv"></div>
+  <h3>Xarajatlar tarkibi</h3>
+  <div class="bars" id="cost-bars"></div>
+  <h3>Pul oqimi (oylar bo'yicha)</h3>
+  <div class="card">
+    <canvas id="cash" class="chart" aria-label="Oylik pul oqimi grafigi"></canvas>
+    <div class="legend">
+      <span style="--c:var(--good)">Kirim</span>
+      <span style="--c:var(--bad)">Chiqim</span>
+      <span style="--c:var(--accent)">Yig'ilgan balans</span>
+    </div>
+  </div>
+  <div class="note" id="cash-note"></div>
+
+  <h3>Narx va foyda</h3>
+  <div class="grid" id="fin-fields"></div>
+  <label class="ctl"><input type="checkbox" id="reserveOn"> Risk zaxirasini tannarxga qo'shish (Risk bo'limidan)</label>
+
+  <h3>To'lov jadvali</h3>
+  <div class="grid" id="pay-fields"></div>
+
+  <details>
+    <summary>Birlik narxlari (o'zgartirish mumkin)</summary>
+    <p class="hint">Quyidagi narxlar taxminiy namuna. Aniq ta'minotchi narxlari bilan almashtiring. Hammasi AQSH dollarida.</p>
+    <div class="grid" id="price-fields"></div>
+  </details>
+</section>
+
+<!-- ============ RISK ============ -->
+<section id="tab-risk" hidden>
+  <h2>Qurilish risklari</h2>
+  <p class="hint">Har bir riskning ehtimoli va ta'sirini 1 dan 5 gacha baholang. Boshlang'ich qiymatlar tanlangan hudud, shakl va materialga qarab qo'yiladi.</p>
+  <div class="kv" id="risk-kv"></div>
+  <h3>Risk xaritasi</h3>
+  <div class="matrix" id="matrix"></div>
+  <h3>Eng katta 5 risk</h3>
+  <div id="risk-top"></div>
+  <h3>Barcha risklar</h3>
+  <div id="risk-list"></div>
+  <button type="button" class="plain" id="btn-rk-reset">Baholarni boshlang'ichga qaytarish</button>
+</section>
+
+<!-- ============ 3D ============ -->
+<section id="tab-view3d" hidden>
+  <h2>3D ko'rinish</h2>
+  <div class="stage">
+    <canvas id="cv3d" aria-label="Loyihaning 3D modeli"></canvas>
+    <div class="msg" id="no3d" hidden>3D ko'rinishni ochib bo'lmadi. Brauzeringiz WebGL'ni qo'llab-quvvatlashi kerak.</div>
+  </div>
+  <div class="hint" id="cap3d" style="margin-top:8px"></div>
+  <div class="ctl">
+    <button type="button" class="plain" data-view="persp">Perspektiv</button>
+    <button type="button" class="plain" data-view="top">Ustidan</button>
+    <button type="button" class="plain" data-view="side">Yon tomondan</button>
+  </div>
+  <div class="ctl">
+    <label><input type="checkbox" id="o-wire"> To'r chiziqlari</label>
+    <label><input type="checkbox" id="o-masts" checked> Ustunlar</label>
+    <label><input type="checkbox" id="o-auto" checked> Aylantirish</label>
+  </div>
+  <div class="fld"><label for="o-op">Membrana shaffofligi</label><input type="range" id="o-op" min="25" max="100" value="90" style="width:100%;accent-color:var(--accent)"></div>
+  <p class="hint">Barmoq bilan aylantiring, ikki barmoq bilan yaqinlashtiring. Rasmdagi kichik figura 1,75 m odam bo'yini ko'rsatadi.</p>
+</section>
+
+</main>
+
+<nav class="nav" aria-label="Bo'limlar">
+  <button type="button" data-tab="proj">Loyiha</button>
+  <button type="button" data-tab="size">O'lcham</button>
+  <button type="button" data-tab="money">Pul</button>
+  <button type="button" data-tab="risk">Risk</button>
+  <button type="button" data-tab="view3d">3D</button>
+</nav>
+
+<script src="three.min.js"></script>
+<script>
+(function(){
+"use strict";
+const $=(s,r)=>(r||document).querySelector(s);
+const $$=(s,r)=>Array.from((r||document).querySelectorAll(s));
+const clamp=(v,a,b)=>Math.min(b,Math.max(a,v));
+const fmt=n=>Math.round(n).toLocaleString("ru-RU");
+const fmt1=(n,d)=>n.toLocaleString("ru-RU",{minimumFractionDigits:d==null?1:d,maximumFractionDigits:d==null?1:d});
+const usd=n=>(n<0?"−$":"$")+fmt(Math.abs(n));
+const usdK=n=>{const a=Math.abs(n),s=n<0?"−":"";return a>=1e6?s+"$"+fmt1(a/1e6,1)+"M":a>=1e3?s+"$"+Math.round(a/1e3)+"k":s+"$"+Math.round(a)};
+
+/* ---------- Ma'lumotlar ---------- */
+const SHAPES={
+  hypar:{n:"Pavilyon (egar shakli)",hint:"Egar shakli: ikki qarama-qarshi burchak baland ustunga, qolgan ikkitasi past tayanchga ulanadi.",hr:"Burchaklar balandliklari farqi",steel:30},
+  cone:{n:"Chodir (konus)",hint:"Markaziy baland ustun membranani ko'taradi, burchaklar past tayanchlarga tortiladi.",hr:"Markaziy cho'qqi balandligi (past nuqtadan yuqori)",steel:24},
+  arch:{n:"Arka tom",hint:"Uzun tomon bo'ylab ketadigan egri tom. Ikki uzun chekka ustunlarga tayanadi, uchlari ochiq.",hr:"Arka ko'tarilishi",steel:32},
+  umb:{n:"Teskari soyabon (daraxtsimon ustun)",hint:"Markazda bitta ustun, membrana chekkalari yuqoriga ko'tarilgan. Suv markazga oqadi.",hr:"Chekkalarning markazdan ko'tarilishi",steel:36},
+  stad:{n:"Stadion tomi (halqa)",hint:"Tashqi halqadagi 16 ta baland ustundan tribunalar ustiga uzatilgan membrana halqa. O'lchamlar tashqi ellips uchun.",hr:"Tashqi chekkaning ichki chekkadan ko'tarilishi",steel:58}
+};
+const REG={
+  jp:{n:"Yaponiya",lab:1.6,soil:1.1,steel:1.15,trans:0},
+  sa:{n:"Saudiya Arabistoni",lab:0.9,soil:1.0,steel:1.0,trans:3},
+  uz:{n:"O'zbekiston",lab:0.6,soil:1.0,steel:1.05,trans:2}
+};
+const DEF=()=>({
+  shape:"hypar",region:"jp",mtype:"PVC",
+  L:24,W:18,Hb:4,Hr:4,ri:0.62,
+  months:8,advance:30,progress:40,final:20,delay:1,retDelay:3,
+  overhead:10,margin:15,design:6,transport:8,contractOverride:0,reserveOn:true,reserveShare:100,
+  price:{steel:2.2,cable:45,found:40,install:28},
+  types:{
+    PVC:{name:"PVC / PVDF",price:38,fab:22,weight:1.05,rollW:2.5,rollL:50,waste:12,layers:1,color:"#EFEBE1",op:0.92,hint:"Eng keng tarqalgan va arzon. Odatda 15-20 yil xizmat qiladi."},
+    PTFE:{name:"PTFE",price:110,fab:35,weight:1.5,rollW:1.5,rollL:50,waste:10,layers:1,color:"#F4F1EA",op:0.95,hint:"Qimmat, lekin uzoq xizmat qiladi (30 yildan ortiq) va yorug'likni yaxshi o'tkazadi."},
+    ETFE:{name:"ETFE yostiqcha",price:45,fab:140,weight:0.35,rollW:1.5,rollL:50,waste:8,layers:2,color:"#CFE6F2",op:0.55,hint:"Shaffof plyonka yostiqchalari. Narx hisobi har bir qavat uchun, ishlab chiqarish narxi profil va havo tizimini o'z ichiga oladi."}
+  },
+  rk:{}
+});
+let S=DEF();
+const LS="membrana-hisobchisi-v1";
+try{const raw=localStorage.getItem(LS);if(raw){const o=JSON.parse(raw);
+  const b=DEF(),ty=b.types;
+  for(const k in ty){ty[k]=Object.assign(ty[k],(o.types||{})[k]||{});}
+  S=Object.assign(b,o,{price:Object.assign(b.price,o.price||{}),types:ty,rk:o.rk||{}});}}catch(e){S=DEF();}
+function save(){try{localStorage.setItem(LS,JSON.stringify(S))}catch(e){}}
+
+const PRESETS={
+  stad:{shape:"stad",L:190,W:150,Hb:22,Hr:14,ri:0.6,months:18,mtype:"PTFE"},
+  hypar:{shape:"hypar",L:24,W:18,Hb:4,Hr:4,months:8,mtype:"PVC"},
+  umb:{shape:"umb",L:16,W:16,Hb:4.5,Hr:2.5,months:5,mtype:"PVC"},
+  cone:{shape:"cone",L:20,W:20,Hb:3,Hr:7,months:6,mtype:"PVC"}
+};
+
+/* ---------- Geometriya ---------- */
+function slope(s){
+  const span=s.shape==="stad"?Math.min(s.L,s.W)/2*(1-s.ri):Math.min(s.L,s.W)/2;
+  return s.Hr/span;
+}
+function build(s){
+  const L=s.L,W=s.W,Hb=s.Hb,Hr=s.Hr,ri=s.ri;
+  const pos=[],idx=[],sup=[],loops=[];
+  const N=36;
+  function rect(fy){
+    for(let j=0;j<=N;j++){const v=j/N*2-1;for(let i=0;i<=N;i++){const u=i/N*2-1;pos.push(u*L/2,fy(u,v),v*W/2);}}
+    for(let j=0;j<N;j++)for(let i=0;i<N;i++){const a=j*(N+1)+i,b=a+1,c=a+N+1,d=c+1;idx.push(a,c,b,b,c,d);}
+    const lp=[];
+    for(let i=0;i<=N;i++)lp.push(i);
+    for(let j=1;j<=N;j++)lp.push(j*(N+1)+N);
+    for(let i=N-1;i>=0;i--)lp.push(N*(N+1)+i);
+    for(let j=N-1;j>=1;j--)lp.push(j*(N+1));
+    loops.push(lp);
+  }
+  let plan=L*W;
+  if(s.shape==="hypar"){
+    rect((u,v)=>Hb+Hr*(0.5+0.5*u*v));
+    [[1,1],[-1,-1]].forEach(c=>sup.push({x:c[0]*L/2,z:c[1]*W/2,top:Hb+Hr,k:"main"}));
+    [[1,-1],[-1,1]].forEach(c=>sup.push({x:c[0]*L/2,z:c[1]*W/2,top:Hb,k:"post"}));
+  }else if(s.shape==="cone"){
+    rect((u,v)=>{const d=Math.pow(Math.pow(Math.abs(u),6)+Math.pow(Math.abs(v),6),1/6)/Math.pow(2,1/6);return Hb+Hr*Math.pow(1-Math.min(1,d),1.3);});
+    sup.push({x:0,z:0,top:Hb+Hr,k:"main"});
+    [[1,1],[-1,-1],[1,-1],[-1,1]].forEach(c=>sup.push({x:c[0]*L/2,z:c[1]*W/2,top:Hb,k:"post"}));
+  }else if(s.shape==="arch"){
+    rect((u,v)=>Hb+Hr*(1-v*v));
+    [-1,-0.5,0,0.5,1].forEach(u=>[-1,1].forEach(v=>sup.push({x:u*L/2,z:v*W/2,top:Hb,k:"post"})));
+  }else if(s.shape==="umb"){
+    rect((u,v)=>Hb+Hr*(u*u+v*v)/2);
+    sup.push({x:0,z:0,top:Hb,k:"main"});
+  }else{
+    const NT=64,NS=10,nM=16;
+    for(let j=0;j<=NS;j++){const t=j/NS,rho=ri+(1-ri)*t;
+      for(let i=0;i<=NT;i++){const th=i/NT*2*Math.PI;
+        const sag=0.16*Hr*t*(0.5-0.5*Math.cos(nM*th));
+        pos.push(rho*Math.cos(th)*L/2,Hb+Hr*Math.pow(t,1.15)-sag,rho*Math.sin(th)*W/2);}}
+    for(let j=0;j<NS;j++)for(let i=0;i<NT;i++){const a=j*(NT+1)+i,b=a+1,c=a+NT+1,d=c+1;idx.push(a,c,b,b,c,d);}
+    const inner=[],outer=[];
+    for(let i=0;i<NT;i++){inner.push(i);outer.push(NS*(NT+1)+i);}
+    loops.push(inner,outer);
+    for(let k=0;k<nM;k++){const th=2*Math.PI*k/nM;sup.push({x:Math.cos(th)*L/2,z:Math.sin(th)*W/2,top:Hb+Hr,k:"main"});}
+    plan=Math.PI*(L/2)*(W/2)*(1-ri*ri);
+  }
+  let A=0;
+  for(let t=0;t<idx.length;t+=3){
+    const a=idx[t]*3,b=idx[t+1]*3,c=idx[t+2]*3;
+    const ux=pos[b]-pos[a],uy=pos[b+1]-pos[a+1],uz=pos[b+2]-pos[a+2];
+    const vx=pos[c]-pos[a],vy=pos[c+1]-pos[a+1],vz=pos[c+2]-pos[a+2];
+    const cx=uy*vz-uz*vy,cy=uz*vx-ux*vz,cz=ux*vy-uy*vx;
+    A+=0.5*Math.sqrt(cx*cx+cy*cy+cz*cz);
+  }
+  let edge=0;
+  loops.forEach(lp=>{for(let k=0;k<lp.length;k++){const a=lp[k]*3,b=lp[(k+1)%lp.length]*3;
+    edge+=Math.hypot(pos[a]-pos[b],pos[a+1]-pos[b+1],pos[a+2]-pos[b+2]);}});
+  let maxY=0;for(let k=1;k<pos.length;k+=3)maxY=Math.max(maxY,pos[k]);
+  return {pos,idx,sup,loops,area:A,edge,plan,maxY};
+}
+
+/* ---------- Risklar ---------- */
+const PR=[0,0.02,0.06,0.12,0.25,0.40];   // ehtimol 1..5
+const IM=[0,0.5,1.5,3,6,12];             // ta'sir, tannarxning % i
+const RISKS=[
+ {id:"wind",n:"Kuchli shamol yoki bo'ron (montaj va ekspluatatsiya)",c:"Ob-havo",p:2,i:4,m:s=>(s.region==="jp"?1:0)+(s.shape==="stad"?1:0),mit:"Shamol yukini hisoblash, montajni shamolsiz kunlarga rejalash, shamol tezligi chegarasini belgilash."},
+ {id:"form",n:"Shakl va kuchlanish hisobidagi xato",c:"Loyiha",p:2,i:5,m:s=>(s.shape==="hypar"||s.shape==="stad")?1:0,mit:"Mustaqil muhandis tekshiruvi, hisobni ikkinchi dasturda solishtirish."},
+ {id:"pond",n:"Qor yoki suv to'planishi (egrilik kam bo'lsa)",c:"Loyiha",p:2,i:4,m:s=>slope(s)<0.2?2:0,mit:"Egrilikni oshirish, suv oqimi uchun nishabni ta'minlash."},
+ {id:"supply",n:"Membrana yetkazib berishning kechikishi",c:"Ta'minot",p:3,i:3,m:s=>s.region==="uz"?1:0,mit:"Buyurtmani erta berish, zaxira ta'minotchi, xalqaro yuk muddatini hisobga olish."},
+ {id:"fab",n:"Payvand va tikuv sifati nuqsoni",c:"Ishlab chiqarish",p:2,i:4,m:s=>0,mit:"Zavodda sifat nazorati, payvand mustahkamligi sinovi."},
+ {id:"fall",n:"Balandlikdan yiqilish va montaj xavfsizligi",c:"Xavfsizlik",p:2,i:5,m:s=>s.shape==="stad"?1:0,mit:"Xavfsizlik rejasi, belbog' tizimi, xodimlarni o'qitish."},
+ {id:"crane",n:"Kran yoki ko'targich kechikishi",c:"Montaj",p:3,i:3,m:s=>s.shape==="stad"?1:0,mit:"Kranni oldindan band qilish, montaj ketma-ketligini soddalashtirish."},
+ {id:"soil",n:"Tuproq va poydevor kutilganidan zaif",c:"Geotexnika",p:2,i:4,m:s=>0,mit:"Qurilishdan oldin geologik tekshiruv."},
+ {id:"quake",n:"Zilzila ta'siri",c:"Tabiiy",p:1,i:5,m:s=>s.region==="jp"?2:(s.region==="uz"?1:0),mit:"Seysmik hisob, egiluvchan birikmalar."},
+ {id:"heat",n:"Issiqlik, qum bo'roni va UV nurlanish",c:"Ob-havo",p:1,i:3,m:s=>s.region==="sa"?(2+(s.mtype==="PVC"?1:0)):0,mit:"UV-chidamli qoplama, ish soatlarini salqin vaqtga ko'chirish."},
+ {id:"curr",n:"Valyuta kursi va material narxining o'zgarishi",c:"Moliya",p:3,i:3,m:s=>s.region==="uz"?1:0,mit:"Narxni shartnomada qotirish, valyuta bo'yicha zaxira."},
+ {id:"pay",n:"Buyurtmachi to'lovining kechikishi",c:"Moliya",p:3,i:4,m:s=>s.region==="uz"?1:0,mit:"Avans, bank kafolati, shartnomada kechikish jarimasi."},
+ {id:"permit",n:"Ruxsatnoma va qurilish normalari tasdig'ining kechikishi",c:"Huquqiy",p:3,i:3,m:s=>(s.region==="jp"||s.region==="uz")?1:0,mit:"Mahalliy konsultant jalb qilish, hujjatlarni erta topshirish."},
+ {id:"sub",n:"Montajchi va pudratchi malakasi yetishmasligi",c:"Montaj",p:3,i:3,m:s=>(s.region==="sa"||s.region==="uz")?1:0,mit:"Sertifikatlangan montaj jamoasi, nazoratchi muhandis."},
+ {id:"creep",n:"Membrana tarangligining vaqt o'tishi bilan susayishi",c:"Ekspluatatsiya",p:2,i:2,m:s=>s.mtype==="PVC"?1:0,mit:"Qayta tarang qilish rejasi, mos material tanlash."},
+ {id:"etfe",n:"ETFE yostiqlarida havo bosimi tizimi nosozligi",c:"Texnik",p:1,i:3,m:s=>s.mtype==="ETFE"?2:0,mit:"Zaxira kompressor, bosim datchiklari."}
+];
+function eff(r){const o=S.rk[r.id];return o?{p:o.p,i:o.i}:{p:clamp(r.p+r.m(S),1,5),i:r.i};}
+
+/* ---------- Hisob ---------- */
+const PH={design:[0,.25],material:[.15,.55],fab:[.3,.7],steel:[.2,.65],found:[.1,.45],install:[.6,.95],cable:[.55,.9],transport:[.45,.6],overhead:[0,1],reserve:[0,1]};
+function compute(){
+  const g=build(S),T=S.types[S.mtype],R=REG[S.region];
+  const net=g.area,gross=net*(1+T.waste/100);
+  const stripLen=gross*T.layers/T.rollW,rolls=Math.ceil(stripLen/T.rollL);
+  const memW=gross*T.weight*T.layers;
+  const steelKg=g.plan*SHAPES[S.shape].steel*R.steel;
+  const c={};
+  c.material=gross*T.layers*T.price;
+  c.fab=gross*T.fab;
+  c.steel=steelKg*S.price.steel;
+  c.cable=g.edge*S.price.cable;
+  c.found=g.plan*S.price.found*R.soil;
+  c.install=gross*S.price.install*R.lab;
+  c.transport=(c.material+c.steel)*(S.transport+R.trans)/100;
+  const d0=c.material+c.fab+c.steel+c.cable+c.found+c.install+c.transport;
+  c.design=d0*S.design/100;
+  const direct=d0+c.design;
+  c.overhead=direct*S.overhead/100;
+  let emv=0;const rr=RISKS.map(r=>{const e=eff(r);const v=PR[e.p]*IM[e.i]/100*direct;emv+=v;return {r,p:e.p,i:e.i,score:e.p*e.i,emv:v};});
+  c.reserve=S.reserveOn?emv*S.reserveShare/100:0;
+  const cost=direct+c.overhead+c.reserve;
+  const price=S.contractOverride>0?S.contractOverride:cost*(1+S.margin/100);
+  const profit=price-cost;
+  const cf=cashflow(c,price);
+  return {g,T,R,net,gross,stripLen,rolls,memW,steelKg,c,direct,cost,price,profit,emv,rr,cf};
+}
+function cashflow(c,price){
+  const D=S.months,TT=D+S.delay+S.retDelay;
+  const exp=new Array(TT).fill(0),inc=new Array(TT).fill(0);
+  Object.keys(PH).forEach(k=>{
+    const a=PH[k][0]*D,b=PH[k][1]*D,amt=c[k]||0;
+    for(let m=0;m<TT;m++){const ov=Math.max(0,Math.min(m+1,b)-Math.max(m,a));exp[m]+=amt*ov/(b-a);}
+  });
+  let pc=[S.advance,S.progress,S.final],sum=pc[0]+pc[1]+pc[2];
+  if(sum>100){pc=pc.map(x=>x*100/sum);sum=100;}
+  const ret=Math.max(0,100-sum);
+  const at=(m)=>clamp(m,0,TT-1);
+  inc[at(S.delay)]+=price*pc[0]/100;
+  inc[at(Math.round(D*0.5)+S.delay)]+=price*pc[1]/100;
+  inc[at(D-1+S.delay)]+=price*pc[2]/100;
+  inc[TT-1]+=price*ret/100;
+  const cum=[];let run=0;
+  for(let m=0;m<TT;m++){run+=inc[m]-exp[m];cum.push(run);}
+  const minC=Math.min(0,...cum);
+  let be=0;for(let m=TT-1;m>=0;m--){if(cum[m]<0){be=m+1;break;}}
+  return {inc,exp,cum,TT,peak:-minC,be:be+1,ret};
+}
+
+/* ---------- Maydonlar ---------- */
+const reg=[];
+const pth=p=>p.replace("@",S.mtype);
+function getV(p){return pth(p).split(".").reduce((o,k)=>o[k],S);}
+function setV(p,v){const ks=pth(p).split(".");let o=S;for(let i=0;i<ks.length-1;i++)o=o[ks[i]];o[ks[ks.length-1]]=v;}
+function mkField(host,f){
+  const id=f.k.replace(/[.@]/g,"-");
+  const el=document.createElement("div");el.className="fld";el.id="fld-"+id;
+  el.innerHTML='<label for="n-'+id+'">'+f.l+(f.u?' <em>'+f.u+'</em>':'')+'</label><div class="pair">'+
+    (f.s?'<input type="range" id="r-'+id+'" min="'+f.min+'" max="'+f.max+'" step="'+f.step+'" aria-label="'+f.l+'">':'')+
+    '<input type="number" inputmode="decimal" id="n-'+id+'" min="'+f.min+'" max="'+f.max+'" step="'+f.step+'"></div>';
+  host.appendChild(el);
+  const rng=$("#r-"+id,el),num=$("#n-"+id,el);
+  const apply=v=>{if(!isFinite(v))return;setV(f.k,clamp(v,f.min,f.max));if(rng&&document.activeElement!==rng)rng.value=getV(f.k);if(document.activeElement!==num)num.value=getV(f.k);refresh(f.k);};
+  if(rng)rng.addEventListener("input",()=>{num.value=rng.value;apply(parseFloat(rng.value));});
+  num.addEventListener("input",()=>{const v=parseFloat(num.value);if(isFinite(v)){setV(f.k,clamp(v,f.min,f.max));if(rng)rng.value=getV(f.k);refresh(f.k);}});
+  num.addEventListener("change",()=>{num.value=getV(f.k);});
+  reg.push({f,rng,num,el});
+}
+function syncFields(){reg.forEach(r=>{const v=getV(r.f.k);if(r.rng)r.rng.value=v;r.num.value=v;});}
+
+const dimsHost=$("#dims");
+[{k:"L",l:"Uzunlik (reja bo'yicha)",u:"m",min:4,max:400,step:1,s:1},
+ {k:"W",l:"Kenglik",u:"m",min:4,max:400,step:1,s:1},
+ {k:"Hb",l:"Past nuqta balandligi",u:"m",min:1,max:60,step:0.5,s:1},
+ {k:"Hr",l:"Ko'tarilish",u:"m",min:0.5,max:40,step:0.5,s:1},
+ {k:"ri",l:"Ichki teshik nisbati (faqat stadion)",u:"",min:0.3,max:0.85,step:0.01,s:1}
+].forEach(f=>mkField(dimsHost,f));
+
+[{k:"overhead",l:"Umumiy xarajat",u:"% (to'g'ridan-to'g'ri xarajatdan)",min:0,max:40,step:1},
+ {k:"margin",l:"Foyda marjasi",u:"%",min:0,max:60,step:1},
+ {k:"design",l:"Loyihalash va muhandislik",u:"%",min:0,max:20,step:0.5},
+ {k:"transport",l:"Transport va logistika",u:"%",min:0,max:25,step:0.5},
+ {k:"contractOverride",l:"Shartnoma narxini o'zim kiritaman (0 = avtomatik)",u:"$",min:0,max:1e9,step:1000},
+ {k:"reserveShare",l:"Risk zaxirasi ulushi",u:"% (hisoblangan qiymatdan)",min:0,max:200,step:10}
+].forEach(f=>mkField($("#fin-fields"),f));
+[{k:"months",l:"Loyiha davomiyligi",u:"oy",min:3,max:36,step:1},
+ {k:"advance",l:"Avans to'lovi",u:"%",min:0,max:100,step:5},
+ {k:"progress",l:"Oraliq to'lov (yarim yo'lda)",u:"%",min:0,max:100,step:5},
+ {k:"final",l:"Topshirishdagi to'lov",u:"%",min:0,max:100,step:5},
+ {k:"delay",l:"Buyurtmachi to'lovni kechiktirishi",u:"oy",min:0,max:6,step:1},
+ {k:"retDelay",l:"Kafolat ushlab qolish muddati",u:"oy",min:0,max:12,step:1}
+].forEach(f=>mkField($("#pay-fields"),f));
+[{k:"types.@.price",l:"Membrana narxi (bir qavat)",u:"$/m²",min:1,max:1000,step:1},
+ {k:"types.@.fab",l:"Ishlab chiqarish (kesish, payvand)",u:"$/m²",min:0,max:1000,step:1},
+ {k:"types.@.waste",l:"Kesish chiqindisi",u:"%",min:0,max:40,step:1},
+ {k:"types.@.weight",l:"Og'irligi (bir qavat)",u:"kg/m²",min:0.1,max:5,step:0.05},
+ {k:"types.@.rollW",l:"Rulon eni",u:"m",min:0.5,max:5,step:0.1},
+ {k:"types.@.rollL",l:"Rulon uzunligi",u:"m",min:10,max:200,step:5},
+ {k:"types.@.layers",l:"Qavatlar soni",u:"",min:1,max:3,step:1},
+ {k:"price.steel",l:"Po'lat konstruksiya (tayyor)",u:"$/kg",min:0.5,max:10,step:0.1},
+ {k:"price.cable",l:"Chekka kabel va furnitura",u:"$/m",min:5,max:300,step:1},
+ {k:"price.found",l:"Poydevor",u:"$/m² reja",min:5,max:400,step:1},
+ {k:"price.install",l:"Montaj (membrana m² uchun)",u:"$/m²",min:5,max:200,step:1}
+].forEach(f=>mkField($("#price-fields"),f));
+
+/* ---------- Segmentlar ---------- */
+$$("[data-seg]").forEach(box=>{
+  const key=box.dataset.seg;
+  box.addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;S[key]=b.dataset.v;refresh(key);});
+});
+function syncSeg(){$$("[data-seg]").forEach(box=>{$$("button",box).forEach(b=>b.setAttribute("aria-pressed",String(S[box.dataset.seg]===b.dataset.v)));});}
+$("#reserveOn").addEventListener("change",e=>{S.reserveOn=e.target.checked;refresh("reserveOn");});
+$("#presets").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;Object.assign(S,PRESETS[b.dataset.preset]);S.rk={};syncFields();refresh("preset");});
+$("#btn-reset").addEventListener("click",()=>{S=DEF();syncFields();refresh("reset");});
+$("#btn-rk-reset").addEventListener("click",()=>{S.rk={};refresh("rk");});
+
+/* ---------- Bo'limlar ---------- */
+let cur="proj";
+const TABS=["proj","size","money","risk","view3d"];
+function show(t){
+  if(TABS.indexOf(t)<0)t="proj";
+  cur=t;
+  TABS.forEach(x=>{$("#tab-"+x).hidden=x!==t;});
+  $$(".nav button").forEach(b=>{if(b.dataset.tab===t)b.setAttribute("aria-current","page");else b.removeAttribute("aria-current");});
+  if(t==="money")drawChart();
+  if(t==="view3d")enter3D();
+  window.scrollTo(0,0);
+}
+$(".nav").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;if(location.hash!=="#"+b.dataset.tab)location.hash=b.dataset.tab;else show(b.dataset.tab);});
+window.addEventListener("hashchange",()=>show(location.hash.slice(1)));
+
+/* ---------- Chiqarish ---------- */
+let R=null;
+function refresh(){
+  save();
+  R=compute();
+  renderAll();
+  dirty3=true;
+  if(cur==="view3d")update3D();
+}
+function kv(host,items){host.innerHTML=items.map(i=>'<div><b'+(i[2]?' class="'+i[2]+'"':'')+'>'+i[1]+'</b><span>'+i[0]+'</span></div>').join("");}
+function renderAll(){
+  const T=R.T;
+  $("#subtitle").textContent=SHAPES[S.shape].n;
+  $("#st-area").textContent=fmt(R.gross)+" m²";
+  $("#st-price").textContent=usdK(R.price);
+  const pm=R.price>0?R.profit/R.price*100:0;
+  $("#st-profit").textContent=usdK(R.profit)+" ("+fmt1(pm,0)+"%)";
+  $("#st-profit").style.color=R.profit<0?"var(--bad)":"var(--good)";
+  syncSeg();
+  $("#reserveOn").checked=S.reserveOn;
+  $("#shape-hint").textContent=SHAPES[S.shape].hint;
+  $("#mat-hint").textContent=T.name+": "+T.hint;
+  const hr=$("#fld-Hr label");hr.innerHTML=SHAPES[S.shape].hr+" <em>m</em>";
+  $("#fld-ri").hidden=S.shape!=="stad";
+  const w=$("#fld-W label");
+  /* O'lcham */
+  const g=R.g;
+  kv($("#size-kv"),[
+    ["Reja maydoni",fmt(g.plan)+" m²"],
+    ["Membrana sof sirti",fmt(R.net)+" m²"],
+    ["Kesish bilan (yalpi)",fmt(R.gross)+" m²"],
+    ["Sirt / reja nisbati",fmt1(R.net/g.plan,2)],
+    ["Rulon soni",fmt(R.rolls)+" dona"],
+    ["Membrana og'irligi",fmt(R.memW)+" kg"],
+    ["Chekka kabel uzunligi",fmt(g.edge)+" m"],
+    ["Po'lat konstruksiya",fmt1(R.steelKg/1000,1)+" t"],
+    ["Eng baland nuqta",fmt1(g.maxY,1)+" m"],
+    ["Ustunlar soni",fmt(g.sup.filter(s=>s.k==="main").length)+" + "+fmt(g.sup.filter(s=>s.k==="post").length)+" tayanch"]
+  ]);
+  const notes=[];
+  const sl=slope(S);
+  if(sl<0.12)notes.push(["bad","Egrilik juda kam ("+fmt1(sl,2)+"). Membrana deyarli tekis bo'lib qoladi: suv va qor to'planishi, shamolda tebranish xavfi katta. Ko'tarilishni oshiring."]);
+  else if(sl<0.2)notes.push(["warn","Egrilik kam ("+fmt1(sl,2)+"). Odatda ko'tarilish oraliqning kamida 1/5 qismiga yaqin bo'lishi tavsiya etiladi. Muhandis bilan tasdiqlang."]);
+  if(S.mtype==="PVC"&&Math.min(S.L,S.W)>30&&S.shape!=="stad")notes.push(["warn","Katta oraliqlarda (taxminan 30 m dan ortiq) odatda PTFE yoki kabel tarmog'i ko'rib chiqiladi. Muhandis bilan tasdiqlang."]);
+  if(S.shape==="stad"&&S.mtype==="PVC")notes.push(["warn","Stadion kabi katta tomlar uchun ko'pincha PTFE yoki ETFE tanlanadi. Narxni ikkala variantda solishtirib ko'ring."]);
+  if(S.advance+S.progress+S.final>100)notes.push(["warn","To'lov foizlari 100% dan oshib ketdi, hisobda ular 100% ga moslashtirildi."]);
+  $("#size-notes").innerHTML=notes.map(n=>'<div class="note '+n[0]+'">'+n[1]+'</div>').join("");
+  $("#roll-table").innerHTML='<tr><th>Ko\'rsatkich</th><th>Qiymat</th></tr>'+
+    [["Tanlangan material",T.name],["Rulon eni",fmt1(T.rollW,1)+" m"],["Rulon uzunligi",fmt(T.rollL)+" m"],["Qavatlar",T.layers],
+     ["Kerakli mato uzunligi",fmt(R.stripLen)+" m"],["Rulonlar (yaxlitlab)",fmt(R.rolls)+" dona"],["Kesish chiqindisi",T.waste+"%"]]
+     .map(r=>"<tr><td>"+r[0]+"</td><td>"+r[1]+"</td></tr>").join("");
+  /* Pul */
+  const cf=R.cf;
+  kv($("#money-kv"),[
+    ["Tannarx",usd(R.cost)],
+    ["Shartnoma narxi",usd(R.price)],
+    ["Foyda",usd(R.profit),R.profit<0?"neg":"pos"],
+    ["Foyda ulushi",fmt1(pm,1)+"%",pm<0?"neg":"pos"],
+    ["Eng ko'p kerak bo'ladigan mablag'",usd(cf.peak)],
+    ["Balans musbat bo'ladigan oy",cf.be+"-oy"]
+  ]);
+  const rows=[["Membrana materiali",R.c.material],["Ishlab chiqarish (kesish, payvand)",R.c.fab],["Po'lat konstruksiya",R.c.steel],["Chekka kabel va furnitura",R.c.cable],
+    ["Poydevor",R.c.found],["Montaj",R.c.install],["Transport va logistika",R.c.transport],["Loyihalash va muhandislik",R.c.design],["Umumiy xarajat",R.c.overhead],["Risk zaxirasi",R.c.reserve]];
+  $("#cost-bars").innerHTML=rows.map(r=>'<div class="row"><span>'+r[0]+'</span><span>'+usd(r[1])+' <small class="hint">'+fmt1(R.cost>0?r[1]/R.cost*100:0,0)+'%</small></span><i><u style="width:'+(R.cost>0?r[1]/R.cost*100:0)+'%"></u></i></div>').join("")+
+    '<div class="row tot"><span>Tannarx</span><span>'+usd(R.cost)+'</span></div>'+
+    '<div class="row tot"><span>Shartnoma narxi</span><span>'+usd(R.price)+'</span></div>'+
+    '<div class="row tot big"><span>Foyda</span><span class="'+(R.profit<0?"neg":"pos")+'">'+usd(R.profit)+'</span></div>';
+  $("#cash-note").textContent="To'lov kechikishi "+S.delay+" oy. Kafolat ushlab qolish: "+fmt1(cf.ret,0)+"% ("+S.retDelay+" oydan keyin to'lanadi). Chiqimlar bosqichlar bo'yicha (loyihalash, material, ishlab chiqarish, montaj) taqsimlangan.";
+  if(cur==="money")drawChart();
+  renderRisk();
+}
+function lvl(sc){return sc>=10?"c-high":sc>=5?"c-mid":"c-low";}
+function lvlColor(sc){return sc>=10?"var(--bad)":sc>=5?"var(--warn)":"var(--good)";}
+const riskBuilt=(function(){
+  const host=$("#risk-list");
+  host.innerHTML=RISKS.map((r,k)=>'<div class="risk" id="rk-'+r.id+'"><h4>'+(k+1)+". "+r.n+'</h4><div class="meta"><span class="chip">'+r.c+'</span><span class="badge" data-badge></span><span data-emv></span></div>'+
+    '<div class="two"><div><label for="rp-'+r.id+'">Ehtimol: <b data-pv></b></label><input type="range" id="rp-'+r.id+'" min="1" max="5" step="1"></div>'+
+    '<div><label for="ri-'+r.id+'">Ta\'sir: <b data-iv></b></label><input type="range" id="ri-'+r.id+'" min="1" max="5" step="1"></div></div>'+
+    '<div class="hint" style="margin-top:6px">Chora: '+r.mit+'</div></div>').join("");
+  RISKS.forEach(r=>{
+    const f=()=>{S.rk[r.id]={p:parseInt($("#rp-"+r.id).value,10),i:parseInt($("#ri-"+r.id).value,10)};refresh("rk");};
+    $("#rp-"+r.id).addEventListener("input",f);$("#ri-"+r.id).addEventListener("input",f);
+  });
+  return true;
+})();
+function renderRisk(){
+  const rr=R.rr;
+  const high=rr.filter(x=>x.score>=10).length;
+  kv($("#risk-kv"),[["Kutilayotgan umumiy zarar",usd(R.emv)],["Tannarxga nisbatan",fmt1(R.direct>0?R.emv/R.direct*100:0,1)+"%"],["Yuqori darajali risklar",high+" ta",high?"neg":"pos"],["Zaxira hisobda",S.reserveOn?usd(R.c.reserve):"qo'shilmagan"]]);
+  const cells={};
+  rr.forEach((x,k)=>{const key=x.p+"-"+x.i;(cells[key]=cells[key]||[]).push(k+1);});
+  let h='';
+  for(let p=5;p>=1;p--){h+='<div class="ax">'+p+'</div>';for(let i=1;i<=5;i++){h+='<div class="cell '+lvl(p*i)+'">'+(cells[p+"-"+i]||[]).join(" ")+'</div>';}}
+  h+='<div></div>';for(let i=1;i<=5;i++)h+='<div class="ax">'+i+'</div>';
+  $("#matrix").innerHTML=h;
+  $("#matrix").setAttribute("aria-label","Risk xaritasi: vertikal ehtimol, gorizontal ta'sir");
+  const top=rr.map((x,k)=>({x,k})).sort((a,b)=>b.x.emv-a.x.emv).slice(0,5);
+  $("#risk-top").innerHTML=top.map(t=>'<div class="row" style="display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;padding:6px 0;border-bottom:1px solid var(--line);font-size:14px"><span>'+(t.k+1)+". "+t.x.r.n+'</span><b>'+usd(t.x.emv)+'</b></div>').join("");
+  rr.forEach(x=>{
+    const el=$("#rk-"+x.r.id);
+    const rp=$("#rp-"+x.r.id),ri=$("#ri-"+x.r.id);
+    if(document.activeElement!==rp)rp.value=x.p;
+    if(document.activeElement!==ri)ri.value=x.i;
+    $("[data-pv]",el).textContent=x.p;$("[data-iv]",el).textContent=x.i;
+    const b=$("[data-badge]",el);b.textContent=x.score;b.style.background="color-mix(in srgb,"+lvlColor(x.score)+" 30%,var(--surface))";
+    $("[data-emv]",el).textContent="Kutilayotgan zarar: "+usd(x.emv);
+  });
+}
+
+/* ---------- Grafik ---------- */
+function drawChart(){
+  if(!R)return;
+  const cv=$("#cash"),w=cv.clientWidth,h=cv.clientHeight;if(!w||!h)return;
+  const dpr=window.devicePixelRatio||1;cv.width=Math.round(w*dpr);cv.height=Math.round(h*dpr);
+  const x=cv.getContext("2d");x.setTransform(dpr,0,0,dpr,0,0);x.clearRect(0,0,w,h);
+  const cs=getComputedStyle(document.documentElement),col=n=>cs.getPropertyValue(n).trim();
+  const cf=R.cf,TT=cf.TT;
+  const ml=46,mr=8,mt=12,mb=22;
+  const maxI=Math.max(...cf.inc,...cf.cum,1),minV=Math.min(...cf.exp.map(v=>-v),...cf.cum,0);
+  const top=maxI*1.12,bot=minV*1.12;
+  const px=m=>ml+(m+0.5)*(w-ml-mr)/TT,py=v=>mt+(top-v)/(top-bot)*(h-mt-mb);
+  x.font="11px Inter, system-ui, sans-serif";x.fillStyle=col("--muted");x.strokeStyle=col("--line");x.lineWidth=1;
+  const ticks=[top/1.12,0,bot/1.12];
+  ticks.forEach(v=>{const y=py(v);x.beginPath();x.moveTo(ml,y);x.lineTo(w-mr,y);x.stroke();x.textAlign="right";x.textBaseline="middle";x.fillText(usdK(v),ml-6,y);});
+  const bw=Math.max(2,(w-ml-mr)/TT*0.62);
+  for(let m=0;m<TT;m++){
+    x.fillStyle=col("--good");if(cf.inc[m]>0){const y=py(cf.inc[m]);x.fillRect(px(m)-bw/2,y,bw,py(0)-y);}
+    x.fillStyle=col("--bad");if(cf.exp[m]>0){const y=py(-cf.exp[m]);x.fillRect(px(m)-bw/2,py(0),bw,y-py(0));}
+  }
+  x.strokeStyle=col("--accent");x.lineWidth=2.2;x.beginPath();
+  cf.cum.forEach((v,m)=>{if(m===0)x.moveTo(px(m),py(v));else x.lineTo(px(m),py(v));});x.stroke();
+  const mi=cf.cum.indexOf(Math.min(...cf.cum));
+  if(cf.cum[mi]<0){x.fillStyle=col("--accent");x.beginPath();x.arc(px(mi),py(cf.cum[mi]),4,0,6.3);x.fill();
+    x.textBaseline="bottom";x.textAlign=px(mi)>w*0.7?"right":"left";x.fillStyle=col("--ink");x.fillText("eng past: "+usdK(cf.cum[mi]),px(mi)+(px(mi)>w*0.7?-6:6),py(cf.cum[mi])-6);}
+  x.fillStyle=col("--muted");x.textAlign="center";x.textBaseline="top";
+  const step=Math.ceil(TT/10);
+  for(let m=0;m<TT;m+=step)x.fillText(String(m+1),px(m),h-mb+5);
+}
+window.addEventListener("resize",()=>{if(cur==="money")drawChart();});
+
+/* ---------- Nusxalash ---------- */
+$("#btn-copy").addEventListener("click",()=>{
+  const T=R.T;
+  const t=["MEMBRANA LOYIHASI (taxminiy hisob)","Shakl: "+SHAPES[S.shape].n,"Hudud: "+REG[S.region].n+", material: "+T.name,
+   "O'lcham: "+S.L+" x "+S.W+" m, past nuqta "+S.Hb+" m, ko'tarilish "+S.Hr+" m",
+   "Reja maydoni: "+fmt(R.g.plan)+" m2, membrana (yalpi): "+fmt(R.gross)+" m2, rulon: "+R.rolls+" dona",
+   "Tannarx: "+usd(R.cost)+", shartnoma narxi: "+usd(R.price)+", foyda: "+usd(R.profit),
+   "Eng ko'p kerak bo'ladigan mablag': "+usd(R.cf.peak)+", davomiyligi: "+S.months+" oy",
+   "Risk bo'yicha kutilayotgan zarar: "+usd(R.emv)].join("\n");
+  const note=$("#copy-note");note.hidden=false;
+  const ok=()=>{note.textContent="Nusxalandi.";};
+  const fb=()=>{note.innerHTML="";const ta=document.createElement("textarea");ta.value=t;ta.readOnly=true;ta.style.cssText="width:100%;height:150px;font:inherit;font-size:13px";note.appendChild(ta);ta.focus();ta.select();};
+  try{navigator.clipboard.writeText(t).then(ok,fb);}catch(e){fb();}
+});
+
+/* ---------- 3D ---------- */
+let T3=null,dirty3=true,raf=0;
+function init3(){
+  if(T3)return true;
+  if(typeof THREE==="undefined"){$("#no3d").hidden=false;return false;}
+  try{
+    const cv=$("#cv3d");
+    const renderer=new THREE.WebGLRenderer({canvas:cv,antialias:true,alpha:true});
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,2));
+    const scene=new THREE.Scene(),camera=new THREE.PerspectiveCamera(45,1,0.1,4000);
+    scene.add(new THREE.HemisphereLight(0xffffff,0x8896a4,0.8));
+    const d1=new THREE.DirectionalLight(0xffffff,0.85);d1.position.set(60,110,50);scene.add(d1);
+    const d2=new THREE.DirectionalLight(0xffffff,0.25);d2.position.set(-60,40,-60);scene.add(d2);
+    const group=new THREE.Group();scene.add(group);
+    T3={renderer,scene,camera,group,theta:0.9,phi:1.05,radius:60,target:new THREE.Vector3(),auto:true,wire:false,masts:true,op:0.9,mats:{}};
+    const ptr=new Map();let last=0;
+    cv.addEventListener("pointerdown",e=>{cv.setPointerCapture(e.pointerId);ptr.set(e.pointerId,{x:e.clientX,y:e.clientY});last=0;stopAuto();});
+    cv.addEventListener("pointermove",e=>{
+      if(!ptr.has(e.pointerId))return;
+      const p=ptr.get(e.pointerId);
+      if(ptr.size===1){T3.theta-=(e.clientX-p.x)*0.008;T3.phi=clamp(T3.phi-(e.clientY-p.y)*0.008,0.12,1.52);}
+      ptr.set(e.pointerId,{x:e.clientX,y:e.clientY});
+      if(ptr.size===2){const a=Array.from(ptr.values());const d=Math.hypot(a[0].x-a[1].x,a[0].y-a[1].y);if(last)T3.radius=clamp(T3.radius*last/d,5,2500);last=d;}
+    });
+    const up=e=>{ptr.delete(e.pointerId);last=0;};
+    cv.addEventListener("pointerup",up);cv.addEventListener("pointercancel",up);
+    cv.addEventListener("wheel",e=>{e.preventDefault();T3.radius=clamp(T3.radius*(1+e.deltaY*0.001),5,2500);stopAuto();},{passive:false});
+    new ResizeObserver(()=>size3()).observe(cv.parentElement);
+    return true;
+  }catch(e){$("#no3d").hidden=false;T3=null;return false;}
+}
+function stopAuto(){if(T3){T3.auto=false;$("#o-auto").checked=false;}}
+function size3(){
+  if(!T3)return;const p=$("#cv3d").parentElement,w=p.clientWidth,h=p.clientHeight;if(!w||!h)return;
+  T3.renderer.setSize(w,h,false);T3.camera.aspect=w/h;T3.camera.updateProjectionMatrix();
+}
+function view3(name){
+  if(!T3)return;const g=R.g,m=Math.max(S.L,S.W);
+  T3.target.set(0,g.maxY*0.35,0);
+  if(name==="top"){T3.phi=0.12;T3.theta=-Math.PI/2;T3.radius=m*1.7;}
+  else if(name==="side"){T3.phi=1.45;T3.theta=Math.PI/2;T3.radius=m*1.6;}
+  else{T3.phi=1.05;T3.theta=0.9;T3.radius=m*1.55;}
+  stopAuto();
+}
+function enter3D(){
+  if(!init3())return;
+  size3();
+  if(dirty3){update3();view3("persp");T3.auto=$("#o-auto").checked=true;}
+  cancelAnimationFrame(raf);loop();
+}
+function loop(){
+  if(cur!=="view3d"||!T3)return;
+  if(T3.auto)T3.theta+=0.004;
+  const r=T3.radius,c=T3.camera;
+  c.position.set(T3.target.x+r*Math.sin(T3.phi)*Math.cos(T3.theta),T3.target.y+r*Math.cos(T3.phi),T3.target.z+r*Math.sin(T3.phi)*Math.sin(T3.theta));
+  c.lookAt(T3.target);
+  T3.renderer.render(T3.scene,c);
+  raf=requestAnimationFrame(loop);
+}
+function clear3(){
+  const g=T3.group;
+  while(g.children.length){const o=g.children.pop();o.traverse(n=>{if(n.geometry)n.geometry.dispose();if(n.material){(Array.isArray(n.material)?n.material:[n.material]).forEach(m=>m.dispose());}});}
+}
+function update3(){
+  if(!T3||!R)return;dirty3=false;clear3();
+  const g=R.g,T=R.T,G=T3.group,cs=getComputedStyle(document.documentElement);
+  const tok=n=>cs.getPropertyValue(n).trim()||"#cccccc";
+  const m=Math.max(S.L,S.W);
+  /* yer va to'r */
+  const gr=new THREE.Mesh(new THREE.PlaneGeometry(m*4,m*4),new THREE.MeshBasicMaterial({color:tok("--ground")}));
+  gr.rotation.x=-Math.PI/2;gr.position.y=-0.05;G.add(gr);
+  const grid=new THREE.GridHelper(m*4,40,tok("--grid"),tok("--grid"));grid.position.y=0;G.add(grid);
+  /* membrana */
+  const geo=new THREE.BufferGeometry();
+  geo.setAttribute("position",new THREE.Float32BufferAttribute(g.pos,3));geo.setIndex(g.idx);geo.computeVertexNormals();
+  const mat=new THREE.MeshStandardMaterial({color:T.color,side:THREE.DoubleSide,transparent:true,opacity:T3.op*(T.op>0.9?1:T.op/0.9),roughness:0.65,metalness:0.0});
+  const mesh=new THREE.Mesh(geo,mat);G.add(mesh);
+  if(T3.wire){const wm=new THREE.Mesh(geo,new THREE.MeshBasicMaterial({color:tok("--accent"),wireframe:true,transparent:true,opacity:0.35}));G.add(wm);}
+  /* chekka kabellar */
+  g.loops.forEach(lp=>{const pts=lp.map(i=>new THREE.Vector3(g.pos[i*3],g.pos[i*3+1],g.pos[i*3+2]));pts.push(pts[0].clone());
+    G.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts),new THREE.LineBasicMaterial({color:tok("--ink")})));});
+  /* ustunlar */
+  if(T3.masts){
+    const rm=clamp(m*0.006,0.12,0.7),sm=new THREE.MeshStandardMaterial({color:0x8b97a4,roughness:0.5,metalness:0.4});
+    g.sup.forEach(s=>{const r=s.k==="main"?rm:rm*0.7,h=Math.max(0.2,s.top);
+      const c=new THREE.Mesh(new THREE.CylinderGeometry(r*0.75,r,h,14),sm);c.position.set(s.x,h/2,s.z);G.add(c);});
+  }
+  /* shaklga xos qo'shimchalar */
+  if(S.shape==="stad"){
+    const field=new THREE.Mesh(new THREE.CircleGeometry(1,48),new THREE.MeshBasicMaterial({color:0x3f8f55}));
+    field.scale.set(S.L/2*0.34,S.W/2*0.34,1);field.rotation.x=-Math.PI/2;field.position.y=0.05;G.add(field);
+    for(let k=0;k<6;k++){
+      const r1=0.38+0.075*k,r2=r1+0.075;
+      const ring=new THREE.Mesh(new THREE.RingGeometry(r1,r2,64),new THREE.MeshStandardMaterial({color:k%2?0x9aa5b1:0x838f9c,side:THREE.DoubleSide,roughness:0.9}));
+      ring.scale.set(S.L/2,S.W/2,1);ring.rotation.x=-Math.PI/2;ring.position.y=0.3+k*(S.Hb*0.8/6);G.add(ring);
+    }
+  }else{
+    const slab=new THREE.Mesh(new THREE.PlaneGeometry(S.L*1.1,S.W*1.1),new THREE.MeshStandardMaterial({color:0xb7bec6,roughness:1}));
+    slab.rotation.x=-Math.PI/2;slab.position.y=0.03;G.add(slab);
+  }
+  /* odam o'lchami */
+  const pm=new THREE.MeshStandardMaterial({color:0xd9602f,roughness:0.8});
+  [[1,0],[2.2,0.8]].forEach(o=>{
+    const px=S.shape==="stad"?S.L/2*0.34+o[0]:S.L/2+1.5+o[0],pz=S.shape==="stad"?o[1]:S.W/2*0.4+o[1];
+    const b=new THREE.Mesh(new THREE.CylinderGeometry(0.22,0.22,1.55,10),pm);b.position.set(px,0.78,pz);G.add(b);
+    const hd=new THREE.Mesh(new THREE.SphereGeometry(0.16,10,8),pm);hd.position.set(px,1.66,pz);G.add(hd);
+  });
+  $("#cap3d").textContent=SHAPES[S.shape].n+": "+S.L+" x "+S.W+" m, eng baland nuqta "+fmt1(g.maxY,1)+" m, membrana "+fmt(R.gross)+" m², material: "+T.name+".";
+}
+$$("[data-view]").forEach(b=>b.addEventListener("click",()=>view3(b.dataset.view)));
+$("#o-wire").addEventListener("change",e=>{if(T3){T3.wire=e.target.checked;update3();}});
+$("#o-masts").addEventListener("change",e=>{if(T3){T3.masts=e.target.checked;update3();}});
+$("#o-auto").addEventListener("change",e=>{if(T3)T3.auto=e.target.checked;});
+$("#o-op").addEventListener("input",e=>{if(T3){T3.op=parseInt(e.target.value,10)/100;update3();}});
+try{const mq=window.matchMedia("(prefers-color-scheme: dark)");(mq.addEventListener?mq.addEventListener.bind(mq,"change"):mq.addListener.bind(mq))(()=>{dirty3=true;if(cur==="view3d")update3();drawChart();});}catch(e){}
+try{new MutationObserver(()=>{dirty3=true;if(cur==="view3d")update3();drawChart();}).observe(document.documentElement,{attributes:true,attributeFilter:["data-theme"]});}catch(e){}
+
+/* ---------- Boshlash ---------- */
+syncFields();
+refresh();
+show(location.hash.slice(1)||"proj");
+})();
+</script>
+
+</body>
+</html>
