@@ -1,6 +1,6 @@
 # Membrana hisobchisi (Android)
 
-Membranali konstruksiyalar uchun hisobchi: o'lcham, kirim-chiqim, qurilish risklari va 3D ko'rinish.
+Membranali konstruksiyalar uchun hisobchi: o'lcham, kuchlanish tekshiruvi, kirim-chiqim, risklar (Monte-Karlo) va 3D ko'rinish. v2: "Hisob" va "Usul" bo'limlari (Taiyo Kogyo va jahon amaliyoti, manbalar bilan).
 Internet kerak emas, hammasi telefonning o'zida ishlaydi.
 
 ## Tuzilma
@@ -25,7 +25,7 @@ unzip -o membrana-hisobchisi.zip -d ~/membrana
 cd ~/membrana/membrana-hisobchisi
 git init
 git add .
-git commit -m "v1"
+git commit -m "v2"
 git branch -M main
 git remote add origin https://github.com/FOYDALANUVCHI/membrana-hisobchisi.git
 git push -u origin main

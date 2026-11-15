@@ -108,6 +108,17 @@ summary{cursor:pointer;font-weight:600;padding:8px 0}
 table{border-collapse:collapse;width:100%;font-size:13px}
 th,td{text-align:left;padding:6px 8px;border-bottom:1px solid var(--line)}
 .scroll{overflow-x:auto}
+
+.nav button{font-size:12px;padding:0 2px}
+.warnc{color:var(--warn)}
+.lv{display:grid;grid-template-columns:auto minmax(0,1fr);gap:8px 10px;align-items:start;padding:8px 0;border-bottom:1px solid var(--line);font-size:14px}
+.lv b{font-family:var(--font-display);padding:1px 9px;border-radius:99px;background:var(--accent);color:var(--accent-ink);font-size:12px;white-space:nowrap}
+details ul{margin:6px 0 0;padding-left:18px}
+details li{margin-bottom:6px;font-size:14px}
+.src a{color:var(--accent);overflow-wrap:anywhere}
+.cov{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media (max-width:560px){.cov{grid-template-columns:1fr}}
+canvas.hist{width:100%;height:170px;display:block}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style>
 </head>
@@ -185,6 +196,42 @@ th,td{text-align:left;padding:6px 8px;border-bottom:1px solid var(--line)}
   <p class="hint">Yalpi maydon = sof sirt x (1 + kesish chiqindisi). Rulon soni = yalpi maydon x qavatlar / rulon eni / rulon uzunligi. Po'lat og'irligi = reja maydoni x shaklga mos koeffitsient. Qiymatlarni Pul bo'limida o'zgartirish mumkin.</p>
 </section>
 
+<!-- ============ HISOB ============ -->
+<section id="tab-calc" hidden>
+  <h2>Konsept kuchlanish tekshiruvi</h2>
+  <p class="hint">Shamol, qor va oldindan tarang (prestress) ta'sirida membrana yetarlicha mustahkammi, dastlabki baholaydi. Ikki yondashuv bor: global xavfsizlik koeffitsienti (odatda 5) va qisman koeffitsientlar (CEN/TS 19102 uslubi).</p>
+  <div class="kv" id="calc-kv"></div>
+  <div id="calc-notes"></div>
+
+  <h3>Tekshiruv usuli</h3>
+  <div class="seg" data-seg="sfMode">
+    <button type="button" data-v="global">Global koeffitsient</button>
+    <button type="button" data-v="partial">Qisman koeffitsientlar</button>
+  </div>
+
+  <h3>Shamol va qor</h3>
+  <div class="hint">Shamol tezligi bosimi EN 1991-1-4 soddalashtirilgan usuli bilan hisoblanadi. Joy turi: 0 dengiz bo'yi, II ochiq dala, III qishloq yoki shahar cheti, IV zich shahar.</div>
+  <div class="seg" data-seg="terrain">
+    <button type="button" data-v="0">0</button><button type="button" data-v="I">I</button><button type="button" data-v="II">II</button><button type="button" data-v="III">III</button><button type="button" data-v="IV">IV</button>
+  </div>
+  <div class="grid" id="calc-wind"></div>
+
+  <h3>Material va oldindan tarang</h3>
+  <div class="grid" id="calc-mat"></div>
+
+  <details>
+    <summary>Koeffitsientlar va egrilik radiuslari</summary>
+    <p class="hint">Qisman koeffitsientlar namuna qiymatlar. Aniq qiymatlarni CEN/TS 19102 C ilovasi yoki mato ta'minotchisi ma'lumotidan oling.</p>
+    <div class="grid" id="calc-safety"></div>
+    <p class="hint">Radius 0 bo'lsa, shaklga qarab avtomatik hisoblanadi. Form-finding dasturidan aniq radius olgan bo'lsangiz, shu yerga kiriting.</p>
+    <div class="grid" id="calc-rad"></div>
+  </details>
+
+  <h3>Kesish (patterning) va kompensatsiya</h3>
+  <div class="kv" id="pat-kv"></div>
+  <div class="note">Kompensatsiya: membrana o'rnatilganda oldindan tarangga yetishi uchun kesish o'lchami nominaldan kichik olinadi. Bu taxminiy qiymat, aniq kompensatsiya ikki o'qli (biaxial) sinovdan olinadi.</div>
+</section>
+
 <!-- ============ PUL ============ -->
 <section id="tab-money" hidden>
   <h2>Kirim va chiqim</h2>
@@ -225,6 +272,11 @@ th,td{text-align:left;padding:6px 8px;border-bottom:1px solid var(--line)}
   <div class="matrix" id="matrix"></div>
   <h3>Eng katta 5 risk</h3>
   <div id="risk-top"></div>
+  <h3>Ehtimoliy xarajat (Monte-Karlo)</h3>
+  <p class="hint">Material, ishlab chiqarish, po'lat va montaj narxlari hamda risk hodisalari tasodifiy o'zgartirilib 3000 marta hisoblanadi. Natija: tannarx qanday oraliqda bo'lishi mumkin.</p>
+  <div class="kv" id="mc-kv"></div>
+  <div class="card" style="margin-top:12px"><canvas id="hist" class="hist" aria-label="Tannarx taqsimoti"></canvas></div>
+  <div class="note" id="mc-note"></div>
   <h3>Barcha risklar</h3>
   <div id="risk-list"></div>
   <button type="button" class="plain" id="btn-rk-reset">Baholarni boshlang'ichga qaytarish</button>
@@ -252,14 +304,105 @@ th,td{text-align:left;padding:6px 8px;border-bottom:1px solid var(--line)}
   <p class="hint">Barmoq bilan aylantiring, ikki barmoq bilan yaqinlashtiring. Rasmdagi kichik figura 1,75 m odam bo'yini ko'rsatadi.</p>
 </section>
 
+<!-- ============ USUL ============ -->
+<section id="tab-method" hidden>
+  <h2>Usullar va standartlar</h2>
+  <p class="hint">Bu bo'lim ochiq manbalarga asoslanadi. Taiyo Kogyo'ning ichki hisob dasturlari va aniq koeffitsientlari ommaga ochiq emas, shuning uchun faqat e'lon qilingan ma'lumotlar keltirilgan.</p>
+
+  <h3>Loyihangiz uchun tavsiya etilgan tahlil darajasi</h3>
+  <div id="method-dyn"></div>
+
+  <details open>
+    <summary>1. Taiyo Kogyo jamoasi nimaga tayanadi</summary>
+    <ul>
+      <li><b>To'liq sikl.</b> Kompaniya (1922 yilda asos solingan, Tokio va Osaka) membranali konstruksiyalarni loyihalaydi, muhandislik hisobini bajaradi, ishlab chiqaradi va o'rnatadi. ETFE, PTFE, space frame va TM Truss bilan ishlaydi.</li>
+      <li><b>Yaponiya qonuni.</b> Membrana binolar Building Standard Law bo'yicha maxsus material va usul hisoblanib, alohida ekspertizadan o'tadi. Buning uchun maxsus texnik standartlar ishlab chiqilgan. 2000-yillarda kodeks qattiqlashgach, uzoq muddatli tent konstruksiyalar oddiy bino sifatida qaralib, qo'shimcha tekshiruv va hujjat talab qilinadi.</li>
+      <li><b>Ichki muhandislik.</b> Taiyo Middle East'da loyiha guruhi bog'lanishlar, kabel dizayni, tayanch po'lat va membrana choklarining joylashuvi ustida ishlaydi. Sinov va tadqiqot Yaponiyadagi bazada (cho'zilish va yong'in sinovlari) o'tkaziladi.</li>
+      <li><b>Raqamli usullar.</b> Kompaniya muhandislari 3D model bilan membrana shaklini hisoblash, shaklni baholashda sun'iy intellekt (support vector machine) va ishlab chiqarish yo'qotishini ehtimoliy optimallashtirish bilan bashorat qilish tizimini e'lon qilgan (2019). Bu ilovadagi Monte-Karlo bo'limi shu g'oyadan ilhomlangan, lekin ularning usuli emas.</li>
+      <li><b>Birdair (Taiyo guruhiga kiradi).</b> Ochiq sahifasida jarayon ko'rsatilgan: shakl tanlash, form-finding, yuk tahlili (oldindan tarang, o'z og'irligi, qor, ko'p yo'nalishli shamol, ponding), detal loyihalash, kesish. Mato mustahkamligi uchun odatda xavfsizlik koeffitsienti 5 olinadi, asosiy me'yor ASCE 55, kompensatsiya ikki o'qli sinovdan aniqlanadi.</li>
+    </ul>
+  </details>
+
+  <details>
+    <summary>2. Hisob asoslangan standartlar</summary>
+    <ul>
+      <li><b>CEN/TS 19102:2023 (Yevropa).</b> Chegaraviy holatlar va qisman koeffitsientlar usuli, xavfsizlik mezonlari EN 1990 bo'yicha. Qamrovi: tolali matolar, plyonkalar, prestress, qor, shamol va yomg'ir. Bo'limlar: loyihalash asoslari, materiallar, chidamlilik, tahlil (kesish va kompensatsiya ham), ULS (mato va bog'lanishlar, ponding), SLS (deformatsiya, burishish, tarang saqlanishi, yirtilish nazorati). B ilovada harorat, doimiy va uzoq muddatli yuk, eskirish, ikki o'qli kuchlanish va panel o'lchami bo'yicha o'zgartirish koeffitsientlari berilgan. Seysmik loyihalash kirmaydi.</li>
+      <li><b>ASCE/SEI 55-16 (AQSH).</b> Havo bilan ushlanadigan, tortilgan va ramkali membranalarni bitta standartda birlashtiradi (ASCE 55-10 va ASCE 17-96 o'rniga).</li>
+      <li><b>DIN EN 13782</b> (tent va vaqtinchalik konstruksiyalar) va <b>TensiNet Design Guide</b> (2004) amaliyotda keng ishlatiladi.</li>
+      <li><b>Yaponiya.</b> Building Standard Law va Membrane Structures Association of Japan kabi tashkilotlar ishlab chiqqan texnik standartlar.</li>
+    </ul>
+  </details>
+
+  <details>
+    <summary>3. Jahonning ilg'or muhandislari nimaga qarab hisoblaydi</summary>
+    <ul>
+      <li><b>Shakl topish (form-finding).</b> Dynamic relaxation (Tensys inTENS kabi dasturlar) va force density usullari. Murakkab shakllar uchun parametrik model (Grasshopper) bilan boshlang'ich geometriyani qayta-qayta tuzatish, havo bilan to'ldiriladigan shakllarda oldindan shishirish, ustun bilan tegish joylarida tugunlarni qotirish.</li>
+      <li><b>Yuk tahlili.</b> Oldindan tarang, o'z og'irligi, qor, besh xil shamol holati (ko'tarish, bosish, ag'darish, yon, burash), ponding. Shamol tunnel sinovi va CFD (k-omega SST) natijalari o'zaro 3% gacha mos kelgan. Standartdagi bir tekis cp -0.7 va +0.3 umumiy kuchni yaxshi beradi, lekin mahalliy bosim o'zgarishini ko'rsatmaydi, shuning uchun murakkab egri yuzalarda tunnel yoki CFD tavsiya etiladi.</li>
+      <li><b>Material.</b> Ikki o'qli sinovlar kompensatsiyani beradi (6 soatlik ushlab turish bilan), partiyalar bo'yicha sifat nazorati, kesish rejasini mustaqil tekshirish, kerak bo'lsa maket (mock-up) yoki yuk sinovi. ETFE uchun yopishqoq-plastik (visco-plastic) xatti-harakat va bosqichma-bosqich yuklash sinovlari.</li>
+      <li><b>Xavfsizlik koeffitsienti.</b> Amaliyotda umumiy koeffitsient 4-6 (Architen), 5-7 (qisman koeffitsientlar yig'indisi sifatida) va ko'p loyihalarda 5 olinadi. Yevropada esa qisman koeffitsientlar va o'zgartirish koeffitsientlari (CEN/TS 19102) tomon o'tilmoqda. Misol: HOWL loyihasida eng yomon kuchlanish ~11 kN/m, PVC Type I matosi (UTS 55 kN/m dan yuqori) va koeffitsient 5.0 tanlangan, ichki bosim 500 Pa.</li>
+      <li><b>Raqamli va ehtimoliy usullar.</b> Parametrik modellar, mashina o'rganishi bilan shakl va yo'qotishni baholash, Monte-Karlo bilan narx va muddat noaniqligini hisoblash.</li>
+    </ul>
+  </details>
+
+  <details>
+    <summary>4. Bu ilova nimani qamrab oladi</summary>
+    <div class="cov">
+      <div>
+        <h3 style="margin-top:8px">Qamrab oladi</h3>
+        <ul>
+          <li>Konsept geometriya va sirt maydoni</li>
+          <li>Shamol bosimi (EN 1991-1-4 soddalashtirilgan) va qor yuki</li>
+          <li>Kuchlanish tekshiruvi (Laplas formulasi), global va qisman koeffitsientlar</li>
+          <li>Burishish (tarang yo'qolishi) tekshiruvi</li>
+          <li>Kompensatsiya va tasma sonini taxmin qilish</li>
+          <li>Xarajat, pul oqimi va foyda</li>
+          <li>Risk reyestri va Monte-Karlo</li>
+        </ul>
+      </div>
+      <div>
+        <h3 style="margin-top:8px">Qamrab olmaydi (mutaxassis kerak)</h3>
+        <ul>
+          <li>To'liq form-finding va nolineyar FEM</li>
+          <li>Shamol tunnel yoki CFD tahlili</li>
+          <li>Ikki o'qli sinov va aniq kompensatsiya</li>
+          <li>Bog'lanish, kabel va po'lat detallari</li>
+          <li>Seysmik, yong'in, ETFE yostiq tizimi tahlili</li>
+          <li>Yakuniy kesish va ishlab chiqarish chizmalari</li>
+        </ul>
+      </div>
+    </div>
+  </details>
+
+  <details class="src">
+    <summary>5. Manbalar</summary>
+    <ul>
+      <li><a href="https://en.wikipedia.org/wiki/Taiyo_Kogyo_Corporation" target="_blank" rel="noopener">Taiyo Kogyo Corporation (Wikipedia)</a></li>
+      <li><a href="https://taiyomc-me.com/about-us/" target="_blank" rel="noopener">Taiyo Middle East: kompaniya haqida</a></li>
+      <li><a href="https://www.matec-conferences.org/10.1051/matecconf/201925802025" target="_blank" rel="noopener">Yokobori va Miura (Taiyo Kogyo), MATEC 2019: kompyuter bilan integratsiyalashgan ishlab chiqarish</a></li>
+      <li><a href="https://www.birdair.com/technology/designing-a-tensile-structure/" target="_blank" rel="noopener">Birdair: tortilgan konstruksiyani loyihalash</a></li>
+      <li><a href="https://knowledge.bsigroup.com/products/design-of-tensioned-membrane-structures" target="_blank" rel="noopener">CEN/TS 19102: qamrovi (BSI)</a></li>
+      <li><a href="https://standards.iteh.ai/catalog/standards/cen/e1cf7e34-6f5e-4f18-9165-f7fa5d277377/cen-ts-19102-2023" target="_blank" rel="noopener">CEN/TS 19102: bo'limlar ro'yxati</a></li>
+      <li><a href="https://istructe.org/resources/library/tensile-membrane-structures-standards-asce-sei-55" target="_blank" rel="noopener">ASCE/SEI 55-16 haqida (IStructE)</a></li>
+      <li><a href="https://koreascience.kr/article/JAKO200210912352082.page" target="_blank" rel="noopener">Yaponiyada membrana konstruksiyalar standartlari</a></li>
+      <li><a href="https://intentsmag.com/2008/08/01/revised-building-codes-impact-japans-tent-industry/" target="_blank" rel="noopener">Yaponiya kodeksi o'zgarishi va tent sanoati</a></li>
+      <li><a href="https://www.scipedia.com/wd/images/0/0b/Holstov_Bown_2021a_1343_767_paper.pdf" target="_blank" rel="noopener">Holstov va Bown (2021): form-finding, kesish va kompensatsiya</a></li>
+      <li><a href="https://app.iass2024.org/files/IASS_2024_Paper_341.pdf" target="_blank" rel="noopener">IASS 2024: egri membrana tomlarda shamol yuki (tunnel va CFD)</a></li>
+      <li><a href="https://core.ac.uk/download/323497304.pdf" target="_blank" rel="noopener">Xavfsizlik koeffitsientlari bo'yicha maqola (5-7)</a></li>
+      <li><a href="https://www.architen.com/wp-content/uploads/architen_files/736a616ad4d3f4de82027ccefee411a5.pdf" target="_blank" rel="noopener">Architen: tortilgan mato konstruksiyalari (koeffitsient 4-6)</a></li>
+    </ul>
+  </details>
+</section>
+
 </main>
 
 <nav class="nav" aria-label="Bo'limlar">
   <button type="button" data-tab="proj">Loyiha</button>
   <button type="button" data-tab="size">O'lcham</button>
+  <button type="button" data-tab="calc">Hisob</button>
   <button type="button" data-tab="money">Pul</button>
   <button type="button" data-tab="risk">Risk</button>
   <button type="button" data-tab="view3d">3D</button>
+  <button type="button" data-tab="method">Usul</button>
 </nav>
 
 <script src="three.min.js"></script>
@@ -289,14 +432,15 @@ const REG={
 };
 const DEF=()=>({
   shape:"hypar",region:"jp",mtype:"PVC",
-  L:24,W:18,Hb:4,Hr:4,ri:0.62,
+  L:24,W:18,Hb:4,Hr:6,ri:0.62,
   months:8,advance:30,progress:40,final:20,delay:1,retDelay:3,
   overhead:10,margin:15,design:6,transport:8,contractOverride:0,reserveOn:true,reserveShare:100,
+  V:25,terrain:"II",cpUp:0.7,cpDown:0.3,sk:0.3,mu:0.8,crimp:0.5,sfMode:"global",sfGlobal:5,kT:0.9,kL:0.7,kA:0.9,kB:0.9,kS:0.95,gM:1.5,Ra:0,Rb:0,
   price:{steel:2.2,cable:45,found:40,install:28},
   types:{
-    PVC:{name:"PVC / PVDF",price:38,fab:22,weight:1.05,rollW:2.5,rollL:50,waste:12,layers:1,color:"#EFEBE1",op:0.92,hint:"Eng keng tarqalgan va arzon. Odatda 15-20 yil xizmat qiladi."},
-    PTFE:{name:"PTFE",price:110,fab:35,weight:1.5,rollW:1.5,rollL:50,waste:10,layers:1,color:"#F4F1EA",op:0.95,hint:"Qimmat, lekin uzoq xizmat qiladi (30 yildan ortiq) va yorug'likni yaxshi o'tkazadi."},
-    ETFE:{name:"ETFE yostiqcha",price:45,fab:140,weight:0.35,rollW:1.5,rollL:50,waste:8,layers:2,color:"#CFE6F2",op:0.55,hint:"Shaffof plyonka yostiqchalari. Narx hisobi har bir qavat uchun, ishlab chiqarish narxi profil va havo tizimini o'z ichiga oladi."}
+    PVC:{name:"PVC / PVDF",price:38,fab:22,weight:1.05,rollW:2.5,rollL:50,waste:12,layers:1,uts:84,ea:1000,p0:3,color:"#EFEBE1",op:0.92,hint:"Eng keng tarqalgan va arzon. Odatda 15-20 yil xizmat qiladi."},
+    PTFE:{name:"PTFE",price:110,fab:35,weight:1.5,rollW:1.5,rollL:50,waste:10,layers:1,uts:140,ea:1500,p0:4,color:"#F4F1EA",op:0.95,hint:"Qimmat, lekin uzoq xizmat qiladi (30 yildan ortiq) va yorug'likni yaxshi o'tkazadi."},
+    ETFE:{name:"ETFE yostiqcha",price:45,fab:140,weight:0.35,rollW:1.5,rollL:50,waste:8,layers:2,uts:12,ea:300,p0:2.5,color:"#CFE6F2",op:0.55,hint:"Shaffof plyonka yostiqchalari. Narx hisobi har bir qavat uchun, ishlab chiqarish narxi profil va havo tizimini o'z ichiga oladi."}
   },
   rk:{}
 });
@@ -310,7 +454,7 @@ function save(){try{localStorage.setItem(LS,JSON.stringify(S))}catch(e){}}
 
 const PRESETS={
   stad:{shape:"stad",L:190,W:150,Hb:22,Hr:14,ri:0.6,months:18,mtype:"PTFE"},
-  hypar:{shape:"hypar",L:24,W:18,Hb:4,Hr:4,months:8,mtype:"PVC"},
+  hypar:{shape:"hypar",L:24,W:18,Hb:4,Hr:6,months:8,mtype:"PVC"},
   umb:{shape:"umb",L:16,W:16,Hb:4.5,Hr:2.5,months:5,mtype:"PVC"},
   cone:{shape:"cone",L:20,W:20,Hb:3,Hr:7,months:6,mtype:"PVC"}
 };
@@ -426,7 +570,10 @@ function compute(){
   const price=S.contractOverride>0?S.contractOverride:cost*(1+S.margin/100);
   const profit=price-cost;
   const cf=cashflow(c,price);
-  return {g,T,R,net,gross,stripLen,rolls,memW,steelKg,c,direct,cost,price,profit,emv,rr,cf};
+  const chk=checkM(g,T),pat=pattern(g,T),mc=monte(c,direct,rr);
+  let over=0;for(let i=0;i<mc.arr.length;i++){if(mc.arr[i]>price)over++;}
+  mc.pLoss=over/mc.arr.length;
+  return {g,T,R,net,gross,stripLen,rolls,memW,steelKg,c,direct,cost,price,profit,emv,rr,cf,chk,pat,mc};
 }
 function cashflow(c,price){
   const D=S.months,TT=D+S.delay+S.retDelay;
@@ -448,6 +595,66 @@ function cashflow(c,price){
   const minC=Math.min(0,...cum);
   let be=0;for(let m=TT-1;m>=0;m--){if(cum[m]<0){be=m+1;break;}}
   return {inc,exp,cum,TT,peak:-minC,be:be+1,ret};
+}
+
+/* ---------- Konsept kuchlanish tekshiruvi ---------- */
+const TERR={"0":{z0:0.003,zmin:1},"I":{z0:0.01,zmin:1},"II":{z0:0.05,zmin:2},"III":{z0:0.3,zmin:5},"IV":{z0:1,zmin:10}};
+function qpEN(V,h,terr){
+  const t=TERR[terr]||TERR.II,z=Math.max(h,t.zmin),kr=0.19*Math.pow(t.z0/0.05,0.07);
+  const ln=Math.log(z/t.z0),cr=kr*ln;
+  return (1+7/ln)*0.5*1.25*cr*cr*V*V/1000;
+}
+function radii(s){
+  const Lm=Math.min(s.L,s.W),D=Math.hypot(s.L,s.W);
+  let a,b,kind="anti";
+  if(s.shape==="hypar"){a=b=D*D/(4*s.Hr);}
+  else if(s.shape==="cone"){a=b=Lm*Lm/(4*s.Hr);}
+  else if(s.shape==="arch"){a=s.W*s.W/(8*s.Hr);b=Infinity;kind="cyl";}
+  else if(s.shape==="umb"){a=b=Lm*Lm/(4*s.Hr);kind="bowl";}
+  else{a=b=10;}
+  if(s.Ra>0)a=s.Ra;
+  if(s.Rb>0)b=s.Rb;
+  return {a:a,b:b,kind:kind};
+}
+function reff(r){const v=r.kind==="cyl"?r.a:r.a*r.b/(r.a+r.b);return isFinite(v)?v:1e6;}
+function incs(r,qd,qu){
+  const R=reff(r);
+  if(r.kind==="cyl")return [-qd*R,qu*R];
+  if(r.kind==="bowl")return [qd*R,qd*R,-qu*R,-qu*R];
+  return [qd*R,-qd*R,-qu*R,qu*R];
+}
+function checkM(g,T){
+  const s=S,r=radii(s),h=Math.max(g.maxY,1),q=qpEN(s.V,h,s.terrain);
+  const G=T.weight*T.layers*9.81/1000,Wu=s.cpUp*q,Wd=s.cpDown*q,Sn=s.mu*s.sk;
+  const qkD=Math.max(G+Sn+0.6*Wd,G+Wd+0.5*Sn),qkU=Math.max(0,Wu-G);
+  const quD=Math.max(1.35*G+1.5*Sn+0.9*Wd,1.35*G+1.5*Wd+0.75*Sn),quU=Math.max(0,1.5*Wu-G);
+  const kp=s.kT*s.kL*s.kA*s.kB*s.kS;
+  function mode(qd,qu,Rd){const ii=incs(r,qd,qu),nmax=T.p0+Math.max.apply(null,ii),nmin=T.p0+Math.min.apply(null,ii);return {nmax:nmax,nmin:nmin,Rd:Rd,eta:nmax/Rd};}
+  const gl=mode(qkD,qkU,T.uts/s.sfGlobal),pa=mode(quD,quU,T.uts*kp/s.gM);
+  gl.req=gl.nmax*s.sfGlobal;pa.req=pa.nmax*s.gM/kp;
+  return {q:q,h:h,G:G,Wu:Wu,Wd:Wd,Sn:Sn,r:r,Reff:reff(r),global:gl,partial:pa,kp:kp};
+}
+function pattern(g,T){
+  const c=T.p0/T.ea*100+S.crimp,uw=Math.max(0.3,T.rollW-0.05);
+  const gross=g.area*(1+T.waste/100)*T.layers;
+  const sl=S.shape==="stad"?Math.min(S.L,S.W)/2*(1-S.ri)*1.05:Math.max(S.L,S.W)*1.05;
+  const strips=Math.ceil(gross/(uw*sl));
+  return {c:c,uw:uw,strips:strips,seam:strips*sl,ex10:10*(1-c/100)};
+}
+function mulberry(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+function tri(r,lo,mo,hi){const u=r(),c=(mo-lo)/(hi-lo);return u<c?lo+Math.sqrt(u*(hi-lo)*(mo-lo)):hi-Math.sqrt((1-u)*(hi-lo)*(hi-mo));}
+function monte(c,direct,rr){
+  const N=3000,rnd=mulberry(20261114),oh=1+S.overhead/100,des=1+S.design/100,arr=new Array(N);
+  for(let i=0;i<N;i++){
+    const d=(c.material*tri(rnd,0.85,1,1.35)+c.fab*tri(rnd,0.9,1,1.25)+c.steel*tri(rnd,0.9,1,1.25)+c.install*tri(rnd,0.9,1,1.4)+c.cable+c.found+c.transport)*des;
+    let ev=0;
+    for(let k=0;k<rr.length;k++){if(rnd()<PR[rr[k].p])ev+=IM[rr[k].i]/100*direct*tri(rnd,0.5,1,1.6);}
+    arr[i]=(d+ev)*oh;
+  }
+  arr.sort((x,y)=>x-y);
+  const pc=p=>arr[Math.min(N-1,Math.floor(p*N))];
+  let sum=0;for(let i=0;i<N;i++)sum+=arr[i];
+  return {arr:arr,p10:pc(0.1),p50:pc(0.5),p80:pc(0.8),p90:pc(0.9),mean:sum/N,base:direct*oh};
 }
 
 /* ---------- Maydonlar ---------- */
@@ -505,6 +712,28 @@ const dimsHost=$("#dims");
  {k:"price.found",l:"Poydevor",u:"$/m² reja",min:5,max:400,step:1},
  {k:"price.install",l:"Montaj (membrana m² uchun)",u:"$/m²",min:5,max:200,step:1}
 ].forEach(f=>mkField($("#price-fields"),f));
+[{k:"V",l:"Bazaviy shamol tezligi",u:"m/s",min:10,max:70,step:1},
+ {k:"cpUp",l:"Shamol so'rishi koeffitsienti (yuqoriga)",u:"cp",min:0.1,max:1.5,step:0.05},
+ {k:"cpDown",l:"Shamol bosimi koeffitsienti (pastga)",u:"cp",min:0.1,max:1.2,step:0.05},
+ {k:"sk",l:"Yer usti qor yuki",u:"kN/m²",min:0,max:6,step:0.1},
+ {k:"mu",l:"Tom shakli koeffitsienti (qor)",u:"",min:0.2,max:2,step:0.1}
+].forEach(f=>mkField($("#calc-wind"),f));
+[{k:"types.@.p0",l:"Oldindan tarang (prestress)",u:"kN/m",min:0.5,max:30,step:0.5},
+ {k:"types.@.uts",l:"Mato uzilish mustahkamligi (ta'minotchi ma'lumoti)",u:"kN/m",min:3,max:500,step:1},
+ {k:"types.@.ea",l:"Mato bikrligi EA",u:"kN/m",min:100,max:5000,step:50},
+ {k:"crimp",l:"Krimp (to'qima egriligi) qo'shimchasi",u:"%",min:0,max:3,step:0.1}
+].forEach(f=>mkField($("#calc-mat"),f));
+[{k:"sfGlobal",l:"Global xavfsizlik koeffitsienti",u:"",min:3,max:8,step:0.5},
+ {k:"kT",l:"Harorat koeffitsienti k_T",u:"",min:0.3,max:1,step:0.01},
+ {k:"kL",l:"Uzoq muddatli yuk k_L",u:"",min:0.3,max:1,step:0.01},
+ {k:"kA",l:"Eskirish k_A",u:"",min:0.3,max:1,step:0.01},
+ {k:"kB",l:"Ikki o'qli kuchlanish k_B",u:"",min:0.3,max:1,step:0.01},
+ {k:"kS",l:"Panel o'lchami k_S",u:"",min:0.3,max:1,step:0.01},
+ {k:"gM",l:"Material koeffitsienti γ_M",u:"",min:1,max:2.5,step:0.05}
+].forEach(f=>mkField($("#calc-safety"),f));
+[{k:"Ra",l:"Egrilik radiusi A (0 = avtomatik)",u:"m",min:0,max:5000,step:1},
+ {k:"Rb",l:"Egrilik radiusi B (0 = avtomatik)",u:"m",min:0,max:5000,step:1}
+].forEach(f=>mkField($("#calc-rad"),f));
 
 /* ---------- Segmentlar ---------- */
 $$("[data-seg]").forEach(box=>{
@@ -519,13 +748,14 @@ $("#btn-rk-reset").addEventListener("click",()=>{S.rk={};refresh("rk");});
 
 /* ---------- Bo'limlar ---------- */
 let cur="proj";
-const TABS=["proj","size","money","risk","view3d"];
+const TABS=["proj","size","calc","money","risk","view3d","method"];
 function show(t){
   if(TABS.indexOf(t)<0)t="proj";
   cur=t;
   TABS.forEach(x=>{$("#tab-"+x).hidden=x!==t;});
   $$(".nav button").forEach(b=>{if(b.dataset.tab===t)b.setAttribute("aria-current","page");else b.removeAttribute("aria-current");});
   if(t==="money")drawChart();
+  if(t==="risk")drawHist();
   if(t==="view3d")enter3D();
   window.scrollTo(0,0);
 }
@@ -602,6 +832,10 @@ function renderAll(){
   $("#cash-note").textContent="To'lov kechikishi "+S.delay+" oy. Kafolat ushlab qolish: "+fmt1(cf.ret,0)+"% ("+S.retDelay+" oydan keyin to'lanadi). Chiqimlar bosqichlar bo'yicha (loyihalash, material, ishlab chiqarish, montaj) taqsimlangan.";
   if(cur==="money")drawChart();
   renderRisk();
+  renderCalc();
+  renderMC();
+  renderMethod();
+  if(cur==="risk")drawHist();
 }
 function lvl(sc){return sc>=10?"c-high":sc>=5?"c-mid":"c-low";}
 function lvlColor(sc){return sc>=10?"var(--bad)":sc>=5?"var(--warn)":"var(--good)";}
@@ -641,6 +875,83 @@ function renderRisk(){
   });
 }
 
+/* ---------- Hisob, Monte-Karlo, Usul ---------- */
+function renderCalc(){
+  const c=R.chk,m=c[S.sfMode],o=c[S.sfMode==="global"?"partial":"global"],T=R.T;
+  const eta=m.eta,cl=eta>1?"neg":(eta>0.8?"warnc":"pos");
+  kv($("#calc-kv"),[
+    ["Tezlik bosimi q_p ("+fmt1(c.h,1)+" m balandlikda)",fmt1(c.q,2)+" kN/m²"],
+    ["Shamol so'rishi (yuqoriga)",fmt1(c.Wu,2)+" kN/m²"],
+    ["Qor yuki",fmt1(c.Sn,2)+" kN/m²"],
+    ["Samarali egrilik radiusi",fmt1(c.Reff,1)+" m"],
+    ["Eng katta kuchlanish",fmt1(m.nmax,1)+" kN/m"],
+    ["Eng kichik kuchlanish",fmt1(m.nmin,1)+" kN/m",m.nmin<=0?"neg":""],
+    ["Ruxsat etilgan kuchlanish",fmt1(m.Rd,1)+" kN/m"],
+    ["Foydalanish koeffitsienti",isFinite(eta)?fmt1(eta*100,0)+"%":"cheksiz",cl]
+  ]);
+  const n=[];
+  if(eta>1)n.push(["bad","Mustahkamlik yetmaydi. Kerakli mato mustahkamligi kamida "+fmt1(m.req,0)+" kN/m (hozir "+T.uts+" kN/m). Yechimlar: egrilikni oshiring (ko'tarilishni kattalashtiring), membranani kabellar bilan panellarga bo'lib radiusni kamaytiring yoki kuchliroq mato tanlang."]);
+  else if(eta>0.8)n.push(["warn","Zaxira kam (80% dan yuqori). Mato mustahkamligini yoki egrilikni oshirish ma'qul."]);
+  if(m.nmin<=0)n.push(["bad","Ba'zi yo'nalishlarda tarang yo'qoladi (kuchlanish nolga tushadi): burishish va shamolda tebranish xavfi. Oldindan tarangni oshiring yoki egrilikni kuchaytiring."]);
+  n.push(["",(S.sfMode==="global"?"Qisman koeffitsientlar":"Global koeffitsient")+" usuli bo'yicha: foydalanish "+(isFinite(o.eta)?fmt1(o.eta*100,0)+"%":"cheksiz")+", kerakli mato mustahkamligi "+fmt1(o.req,0)+" kN/m. Ikki usul natijasi farq qilsa, qaysi biri qat'iyroq ekaniga qarang."]);
+  if(S.shape==="arch")n.push(["warn","Silindrsimon shakl so'rish yukida tarangini yo'qotadi, odatda qo'shimcha kabel yoki yoylar bilan barqarorlashtiriladi."]);
+  if(S.shape==="stad"&&!(S.Ra>0))n.push(["","Stadion uchun egrilik radiusi 10 m deb taxmin qilingan (radial kabel panellari). Haqiqiy kabel to'ri va to'liq FEM kerak, radiusni yuqoridagi maydondan o'zgartirishingiz mumkin."]);
+  else if(c.Reff>40)n.push(["warn","Egrilik radiusi katta ("+fmt(c.Reff)+" m). Katta oraliqli membranani kabellar bilan panellarga bo'lish radiusni kamaytiradi va kuchlanishni pasaytiradi."]);
+  n.push(["","Hisob sirt bo'ylab bir tekis bosim va chiziqli (Laplas) formulasidan foydalanadi. Haqiqiy kuchlanish form-finding va nolineyar FEM bilan aniqlanadi."]);
+  $("#calc-notes").innerHTML=n.map(x=>'<div class="note '+x[0]+'">'+x[1]+'</div>').join("");
+  const p=R.pat;
+  kv($("#pat-kv"),[
+    ["Kompensatsiya (kesish o'lchami kichrayishi)",fmt1(p.c,2)+" %"],
+    ["10 m panel kesish uzunligi",fmt1(p.ex10,3)+" m"],
+    ["Foydali tasma eni",fmt1(p.uw,2)+" m"],
+    ["Tasmalar soni (taxminiy)",fmt(p.strips)],
+    ["Umumiy chok uzunligi",fmt(p.seam)+" m"]
+  ]);
+}
+function renderMC(){
+  const m=R.mc,rec=Math.max(0,m.p80-m.base);
+  kv($("#mc-kv"),[
+    ["Tannarx (zaxirasiz)",usd(m.base)],
+    ["O'rtacha (P50)",usd(m.p50)],
+    ["P80 (80% ehtimol bilan shundan oshmaydi)",usd(m.p80)],
+    ["P90",usd(m.p90)],
+    ["Narxdan oshib ketish ehtimoli",fmt1(m.pLoss*100,0)+"%",m.pLoss>0.3?"neg":(m.pLoss>0.15?"warnc":"pos")],
+    ["Tavsiya etilgan zaxira (P80)",usd(rec)],
+    ["Hozirgi zaxira",usd(R.c.reserve)]
+  ]);
+  $("#mc-note").textContent=m.pLoss>0.2?"Xarajat shartnoma narxidan oshib ketish ehtimoli yuqori. Foyda marjasini yoki risk zaxirasini oshirish ma'qul.":"Shartnoma narxi ko'pchilik ssenariylarni qoplaydi. Baribir P80 zaxirasi bilan solishtiring.";
+}
+function renderMethod(){
+  const area=R.gross,span=Math.max(S.L,S.W),L=[];
+  L.push(["1","Konsept hisob (shu ilova): taxminiy o'lcham, narx, risk va kuchlanish baholash."]);
+  if(area>200||span>15)L.push(["2","Form-finding (dynamic relaxation yoki force density) va FEM tahlil: aniq shakl, kuchlanish va kabel kuchlari."]);
+  if(S.shape==="hypar"||S.shape==="stad"||area>1000||span>30)L.push(["3","Shamol tunnel sinovi yoki CFD, ikki o'qli material sinovi va kesish rejasini mustaqil tekshirish: murakkab egri yuzalarda standartdagi bir tekis cp yetarli emas."]);
+  if(S.mtype==="ETFE")L.push(["4","ETFE: yostiq ichki bosimi tizimi va yopishqoq-plastik material xatti-harakati bo'yicha maxsus tahlil."]);
+  if(S.region==="jp")L.push(["!","Yaponiya: Building Standard Law bo'yicha membrana konstruksiyalar alohida ekspertizadan o'tadi."]);
+  else L.push(["!","Mahalliy me'yor, shamol va qor ma'lumotlari uchun mahalliy muhandis; xalqaro standartdan (CEN/TS 19102, ASCE 55) foydalanish buyurtmachi bilan kelishiladi."]);
+  if(S.shape==="stad")L.push(["!","Stadion: seysmik va yong'in ssenariylari alohida tahlil qilinadi (CEN/TS 19102 seysmikni qamramaydi)."]);
+  $("#method-dyn").innerHTML=L.map(x=>'<div class="lv"><b>'+x[0]+'</b><span>'+x[1]+'</span></div>').join("");
+}
+function drawHist(){
+  if(!R)return;
+  const cv=$("#hist"),w=cv.clientWidth,h=cv.clientHeight;if(!w||!h)return;
+  const dpr=window.devicePixelRatio||1;cv.width=Math.round(w*dpr);cv.height=Math.round(h*dpr);
+  const x=cv.getContext("2d");x.setTransform(dpr,0,0,dpr,0,0);x.clearRect(0,0,w,h);
+  const cs=getComputedStyle(document.documentElement),col=n=>cs.getPropertyValue(n).trim();
+  const a=R.mc.arr,lo=Math.min(a[0],R.price),hi=Math.max(a[a.length-1],R.price),B=24,bins=new Array(B).fill(0);
+  a.forEach(v=>{bins[Math.min(B-1,Math.floor((v-lo)/((hi-lo)||1)*B))]++;});
+  const mx=Math.max.apply(null,bins),ml=8,mr=8,mt=14,mb=34,bw=(w-ml-mr)/B;
+  const X=v=>ml+(v-lo)/((hi-lo)||1)*(w-ml-mr);
+  x.fillStyle=col("--accent");x.globalAlpha=0.75;
+  bins.forEach((n,i)=>{const bh=n/mx*(h-mt-mb);x.fillRect(ml+i*bw+1,h-mb-bh,bw-2,bh);});
+  x.globalAlpha=1;
+  x.font="11px Inter, system-ui, sans-serif";x.textBaseline="top";
+  const mark=(v,label,c,dy)=>{const right=X(v)>w*0.7;x.strokeStyle=c;x.lineWidth=1.5;x.beginPath();x.moveTo(X(v),mt);x.lineTo(X(v),h-mb);x.stroke();x.fillStyle=c;x.textAlign=right?"right":"left";x.fillText(label,X(v)+(right?-4:4),mt+dy);};
+  mark(R.mc.p50,"P50",col("--ink"),0);mark(R.mc.p80,"P80",col("--warn"),12);mark(R.price,"narx",col("--good"),24);
+  x.fillStyle=col("--muted");x.textAlign="left";x.fillText(usdK(lo),ml,h-mb+6);x.textAlign="right";x.fillText(usdK(hi),w-mr,h-mb+6);
+  x.textAlign="center";x.fillText("tannarx taqsimoti (3000 simulyatsiya)",w/2,h-16);
+}
+
 /* ---------- Grafik ---------- */
 function drawChart(){
   if(!R)return;
@@ -670,7 +981,7 @@ function drawChart(){
   const step=Math.ceil(TT/10);
   for(let m=0;m<TT;m+=step)x.fillText(String(m+1),px(m),h-mb+5);
 }
-window.addEventListener("resize",()=>{if(cur==="money")drawChart();});
+window.addEventListener("resize",()=>{if(cur==="money")drawChart();if(cur==="risk")drawHist();});
 
 /* ---------- Nusxalash ---------- */
 $("#btn-copy").addEventListener("click",()=>{
