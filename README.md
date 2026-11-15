@@ -1,4 +1,6 @@
-# Membrana hisobchisi (Android)
+# Membrana hisobchisi (Android) v3.0
+
+Tillar: O'zbekcha, English, 日本語 (yuqori o'ng burchakdagi UZ / EN / 日本語 tugmalari). Yangi dizayn, 5D ko'rinish.
 
 Membranali konstruksiyalar uchun hisobchi: o'lcham, kuchlanish tekshiruvi, kirim-chiqim, risklar (Monte-Karlo) va 5D ko'rinish (3D + vaqt + xarajat). v2: "Hisob" va "Usul" bo'limlari (Taiyo Kogyo va jahon amaliyoti, manbalar bilan).
 Internet kerak emas, hammasi telefonning o'zida ishlaydi.
@@ -25,7 +27,7 @@ unzip -o membrana-hisobchisi.zip -d ~/membrana
 cd ~/membrana/membrana-hisobchisi
 git init
 git add .
-git commit -m "v2"
+git commit -m "v3"
 git branch -M main
 git remote add origin https://github.com/FOYDALANUVCHI/membrana-hisobchisi.git
 git push -u origin main
@@ -45,3 +47,7 @@ git push -u origin main
 ## Eslatma
 
 Hisoblar taxminiy konsept darajasida. Yakuniy o'lcham, kuchlanish va narxni muhandis hisobi hamda ta'minotchi taklifi bilan tasdiqlang.
+
+## Tarjima qo'shish
+
+`index.html` ichida `const I18N=` bo'limi: kalit o'zbekcha matn, qiymat tarjima. `{}` raqam yoki nom o'rnini bildiradi, tarjimada `{1}`, `{2}` yoziladi.
