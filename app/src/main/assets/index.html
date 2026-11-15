@@ -284,10 +284,16 @@ canvas.hist{width:100%;height:170px;display:block}
 
 <!-- ============ 3D ============ -->
 <section id="tab-view3d" hidden>
-  <h2>3D ko'rinish</h2>
+  <h2>5D ko'rinish</h2>
   <div class="stage">
     <canvas id="cv3d" aria-label="Loyihaning 3D modeli"></canvas>
     <div class="msg" id="no3d" hidden>3D ko'rinishni ochib bo'lmadi. Brauzeringiz WebGL'ni qo'llab-quvvatlashi kerak.</div>
+  </div>
+  <div class="card" style="margin-top:8px">
+    <label for="t5" id="t5l" style="display:block;font-weight:600;margin-bottom:6px"></label>
+    <input type="range" id="t5" min="0" max="8" step="1" value="8" style="width:100%" aria-label="Qurilish oyi">
+    <div class="kv" id="kv5" style="margin-top:10px"></div>
+    <div class="hint" style="margin-top:8px">3D shakl + vaqt (4D) + xarajat (5D). Slayderni siljiting: poydevor, po'lat va membrana ish jadvali bo'yicha qurilib boradi, sarflangan pul esa pul oqimi hisobidan olinadi.</div>
   </div>
   <div class="hint" id="cap3d" style="margin-top:8px"></div>
   <div class="ctl">
@@ -401,7 +407,7 @@ canvas.hist{width:100%;height:170px;display:block}
   <button type="button" data-tab="calc">Hisob</button>
   <button type="button" data-tab="money">Pul</button>
   <button type="button" data-tab="risk">Risk</button>
-  <button type="button" data-tab="view3d">3D</button>
+  <button type="button" data-tab="view3d">5D</button>
   <button type="button" data-tab="method">Usul</button>
 </nav>
 
@@ -1012,7 +1018,7 @@ function init3(){
     const d1=new THREE.DirectionalLight(0xffffff,0.85);d1.position.set(60,110,50);scene.add(d1);
     const d2=new THREE.DirectionalLight(0xffffff,0.25);d2.position.set(-60,40,-60);scene.add(d2);
     const group=new THREE.Group();scene.add(group);
-    T3={renderer,scene,camera,group,theta:0.9,phi:1.05,radius:60,target:new THREE.Vector3(),auto:true,wire:false,masts:true,op:0.9,mats:{}};
+    T3={m5:-1,renderer,scene,camera,group,theta:0.9,phi:1.05,radius:60,target:new THREE.Vector3(),auto:true,wire:false,masts:true,op:0.9,mats:{}};
     const ptr=new Map();let last=0;
     cv.addEventListener("pointerdown",e=>{cv.setPointerCapture(e.pointerId);ptr.set(e.pointerId,{x:e.clientX,y:e.clientY});last=0;stopAuto();});
     cv.addEventListener("pointermove",e=>{
@@ -1061,6 +1067,23 @@ function clear3(){
   const g=T3.group;
   while(g.children.length){const o=g.children.pop();o.traverse(n=>{if(n.geometry)n.geometry.dispose();if(n.material){(Array.isArray(n.material)?n.material:[n.material]).forEach(m=>m.dispose());}});}
 }
+function ph5(){
+  const D=S.months,m=T3.m5<0?D:T3.m5,t=D?m/D:1;
+  const f=k=>clamp((t-PH[k][0])/(PH[k][1]-PH[k][0]),0,1);
+  let spent=0;for(let i=0;i<Math.min(m,R.cf.exp.length);i++)spent+=R.cf.exp[i];
+  let rec=0;for(let i=0;i<Math.min(m,R.cf.inc.length);i++)rec+=R.cf.inc[i];
+  return {m,D,t,found:f("found"),steel:f("steel"),mem:f("install"),spent,rec};
+}
+function sync5(){
+  const D=S.months,s=$("#t5");s.max=D;
+  if(T3.m5>=D)T3.m5=-1;
+  const p=ph5();s.value=p.m;
+  const tot=R.cf.exp.reduce((a,b)=>a+b,0);
+  $("#t5l").textContent="Qurilish oyi: "+p.m+" / "+D;
+  const stage=p.m>=D?"Tayyor":p.mem>0?"Membrana o'rnatilmoqda":p.steel>0?"Po'lat konstruksiya":p.found>0?"Poydevor":"Boshlanmagan";
+  kv($("#kv5"),[["Bosqich",stage],["Poydevor",fmt(p.found*100)+"%"],["Po'lat",fmt(p.steel*100)+"%"],["Membrana",fmt(p.mem*100)+"%"],
+    ["Sarflangan",usdK(p.spent)],["Jami xarajat",usdK(tot)],["Buyurtmachidan tushgan",usdK(p.rec)]]);
+}
 function update3(){
   if(!T3||!R)return;dirty3=false;clear3();
   const g=R.g,T=R.T,G=T3.group,cs=getComputedStyle(document.documentElement);
@@ -1074,29 +1097,32 @@ function update3(){
   const geo=new THREE.BufferGeometry();
   geo.setAttribute("position",new THREE.Float32BufferAttribute(g.pos,3));geo.setIndex(g.idx);geo.computeVertexNormals();
   const mat=new THREE.MeshStandardMaterial({color:T.color,side:THREE.DoubleSide,transparent:true,opacity:T3.op*(T.op>0.9?1:T.op/0.9),roughness:0.65,metalness:0.0});
-  const mesh=new THREE.Mesh(geo,mat);G.add(mesh);
-  if(T3.wire){const wm=new THREE.Mesh(geo,new THREE.MeshBasicMaterial({color:tok("--accent"),wireframe:true,transparent:true,opacity:0.35}));G.add(wm);}
+  const P5=ph5();sync5();
+  const nIdx=Math.floor(g.idx.length/3*P5.mem)*3;
+  geo.setDrawRange(0,nIdx);
+  const mesh=new THREE.Mesh(geo,mat);mesh.visible=nIdx>0;G.add(mesh);
+  if(T3.wire&&nIdx>0){const wm=new THREE.Mesh(geo,new THREE.MeshBasicMaterial({color:tok("--accent"),wireframe:true,transparent:true,opacity:0.35}));G.add(wm);}
   /* chekka kabellar */
-  g.loops.forEach(lp=>{const pts=lp.map(i=>new THREE.Vector3(g.pos[i*3],g.pos[i*3+1],g.pos[i*3+2]));pts.push(pts[0].clone());
+  if(P5.mem>0)g.loops.forEach(lp=>{const pts=lp.map(i=>new THREE.Vector3(g.pos[i*3],g.pos[i*3+1],g.pos[i*3+2]));pts.push(pts[0].clone());
     G.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts),new THREE.LineBasicMaterial({color:tok("--ink")})));});
   /* ustunlar */
   if(T3.masts){
     const rm=clamp(m*0.006,0.12,0.7),sm=new THREE.MeshStandardMaterial({color:0x8b97a4,roughness:0.5,metalness:0.4});
     g.sup.forEach(s=>{const r=s.k==="main"?rm:rm*0.7,h=Math.max(0.2,s.top);
-      const c=new THREE.Mesh(new THREE.CylinderGeometry(r*0.75,r,h,14),sm);c.position.set(s.x,h/2,s.z);G.add(c);});
+      const hh=h*P5.steel;if(hh<0.05)return;const c=new THREE.Mesh(new THREE.CylinderGeometry(r*0.75,r,hh,14),sm);c.position.set(s.x,hh/2,s.z);G.add(c);});
   }
   /* shaklga xos qo'shimchalar */
   if(S.shape==="stad"){
     const field=new THREE.Mesh(new THREE.CircleGeometry(1,48),new THREE.MeshBasicMaterial({color:0x3f8f55}));
-    field.scale.set(S.L/2*0.34,S.W/2*0.34,1);field.rotation.x=-Math.PI/2;field.position.y=0.05;G.add(field);
-    for(let k=0;k<6;k++){
+    field.scale.set(S.L/2*0.34,S.W/2*0.34,1);field.rotation.x=-Math.PI/2;field.position.y=0.05;if(P5.found>0)G.add(field);
+    for(let k=0;k<Math.ceil(6*P5.found);k++){
       const r1=0.38+0.075*k,r2=r1+0.075;
       const ring=new THREE.Mesh(new THREE.RingGeometry(r1,r2,64),new THREE.MeshStandardMaterial({color:k%2?0x9aa5b1:0x838f9c,side:THREE.DoubleSide,roughness:0.9}));
       ring.scale.set(S.L/2,S.W/2,1);ring.rotation.x=-Math.PI/2;ring.position.y=0.3+k*(S.Hb*0.8/6);G.add(ring);
     }
   }else{
     const slab=new THREE.Mesh(new THREE.PlaneGeometry(S.L*1.1,S.W*1.1),new THREE.MeshStandardMaterial({color:0xb7bec6,roughness:1}));
-    slab.rotation.x=-Math.PI/2;slab.position.y=0.03;G.add(slab);
+    slab.rotation.x=-Math.PI/2;slab.position.y=0.03;if(P5.found>0)G.add(slab);
   }
   /* odam o'lchami */
   const pm=new THREE.MeshStandardMaterial({color:0xd9602f,roughness:0.8});
@@ -1108,6 +1134,7 @@ function update3(){
   $("#cap3d").textContent=SHAPES[S.shape].n+": "+S.L+" x "+S.W+" m, eng baland nuqta "+fmt1(g.maxY,1)+" m, membrana "+fmt(R.gross)+" m², material: "+T.name+".";
 }
 $$("[data-view]").forEach(b=>b.addEventListener("click",()=>view3(b.dataset.view)));
+$("#t5").addEventListener("input",e=>{if(T3){const v=parseInt(e.target.value,10);T3.m5=v>=S.months?-1:v;update3();}});
 $("#o-wire").addEventListener("change",e=>{if(T3){T3.wire=e.target.checked;update3();}});
 $("#o-masts").addEventListener("change",e=>{if(T3){T3.masts=e.target.checked;update3();}});
 $("#o-auto").addEventListener("change",e=>{if(T3)T3.auto=e.target.checked;});

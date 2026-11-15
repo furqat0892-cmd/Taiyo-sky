@@ -1,6 +1,6 @@
 # Membrana hisobchisi (Android)
 
-Membranali konstruksiyalar uchun hisobchi: o'lcham, kuchlanish tekshiruvi, kirim-chiqim, risklar (Monte-Karlo) va 3D ko'rinish. v2: "Hisob" va "Usul" bo'limlari (Taiyo Kogyo va jahon amaliyoti, manbalar bilan).
+Membranali konstruksiyalar uchun hisobchi: o'lcham, kuchlanish tekshiruvi, kirim-chiqim, risklar (Monte-Karlo) va 5D ko'rinish (3D + vaqt + xarajat). v2: "Hisob" va "Usul" bo'limlari (Taiyo Kogyo va jahon amaliyoti, manbalar bilan).
 Internet kerak emas, hammasi telefonning o'zida ishlaydi.
 
 ## Tuzilma
