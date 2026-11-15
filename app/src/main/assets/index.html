@@ -131,15 +131,16 @@ body{background:radial-gradient(1200px 400px at 85% -120px,color-mix(in srgb,var
 .top .wrap{padding-block:10px 12px}
 .brand{display:flex;align-items:center;gap:10px}
 .logo{width:34px;height:34px;flex:none;filter:drop-shadow(0 2px 4px rgba(0,0,0,.25))}
-.brand h1{flex:1;min-width:0;font-size:17px;color:#fff;letter-spacing:-.01em}
+.brand h1{flex:1;min-width:0;font-size:16px;color:#fff;letter-spacing:-.01em}
 .brand h1 small{display:block;color:rgba(255,255,255,.78);font-size:12px;font-weight:400;font-family:var(--font-body);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .lang{display:flex;gap:2px;padding:2px;border-radius:99px;background:rgba(255,255,255,.16)}
-.lang button{border:0;background:transparent;color:#fff;font:inherit;font-size:12px;font-weight:600;min-width:34px;min-height:30px;padding:0 8px;border-radius:99px;cursor:pointer}
+.lang button{border:0;background:transparent;color:#fff;font:inherit;font-size:12px;font-weight:600;min-width:30px;min-height:30px;padding:0 7px;white-space:nowrap;border-radius:99px;cursor:pointer}
 .lang button[aria-pressed="true"]{background:#fff;color:var(--hero1)}
 .stats{gap:8px;margin-top:10px}
 .stat{background:rgba(255,255,255,.13);border:1px solid rgba(255,255,255,.18);border-radius:12px;padding:7px 10px;backdrop-filter:blur(4px)}
 .stat b{font-size:16px;color:#fff}
 .stat span{color:rgba(255,255,255,.78);font-size:10.5px}
+.top .stat b small{font-size:11px;font-weight:500;opacity:.9;color:inherit}
 .top .stat b.pos{color:#A9F5CF}.top .stat b.neg{color:#FFBDB2}
 h2{font-size:21px;margin-bottom:12px;letter-spacing:-.015em;display:flex;align-items:center;gap:10px}
 h2::before{content:"";width:5px;height:22px;border-radius:3px;background:linear-gradient(var(--sun),color-mix(in srgb,var(--sun) 40%,var(--accent)))}
@@ -170,9 +171,11 @@ details[open]{padding-bottom:10px}
 .matrix .cell{border-radius:7px}
 .nav{background:color-mix(in srgb,var(--surface) 92%,transparent);backdrop-filter:blur(10px);border-top:1px solid var(--line);gap:2px;box-shadow:0 -6px 22px rgba(10,40,55,.08)}
 .nav button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-height:54px;font-size:10.5px;border-top:0;border-radius:14px;line-height:1.1;transition:background .15s,color .15s}
+.nav button span{white-space:nowrap}
 .nav button svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 .nav button[aria-current="page"]{background:color-mix(in srgb,var(--accent) 13%,transparent);color:var(--accent)}
 body{padding-bottom:104px}
+:lang(ja) .nav button{font-size:10px;letter-spacing:-.03em}
 .bars .row i{height:6px;border-radius:4px}
 .bars .row i u{background:linear-gradient(90deg,var(--hero1),var(--hero2))}
 summary{list-style-position:inside}
@@ -581,7 +584,7 @@ function setLang(l,noRefresh){
   document.documentElement.lang=l;
   $$("#lang button").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.lang===l)));
   document.title=tr("Membrana hisobchisi");
-  if(!noRefresh&&typeof refresh==="function"&&R)refresh();
+  if(!noRefresh&&typeof refresh==="function"&&R){try{refresh();}catch(e){}}
   trTree(document.body);
 }
 
@@ -937,7 +940,7 @@ function refresh(){
   R=compute();
   renderAll();
   dirty3=true;
-  if(cur==="view3d")update3D();
+  if(cur==="view3d")update3();
 }
 function kv(host,items){host.innerHTML=items.map(i=>'<div><b'+(i[2]?' class="'+i[2]+'"':'')+'>'+i[1]+'</b><span>'+i[0]+'</span></div>').join("");}
 function renderAll(){
@@ -946,7 +949,7 @@ function renderAll(){
   $("#st-area").textContent=fmt(R.gross)+" m²";
   $("#st-price").textContent=usdK(R.price);
   const pm=R.price>0?R.profit/R.price*100:0;
-  $("#st-profit").textContent=usdK(R.profit)+" ("+fmt1(pm,0)+"%)";
+  $("#st-profit").innerHTML=usdK(R.profit)+" <small>("+fmt1(pm,0)+"%)</small>";
   $("#st-profit").className=R.profit<0?"neg":"pos";
   syncSeg();
   $("#reserveOn").checked=S.reserveOn;

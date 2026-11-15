@@ -1,4 +1,4 @@
-# Membrana hisobchisi (Android) v3.0
+# Membrana hisobchisi (Android) v3.1
 
 Tillar: O'zbekcha, English, 日本語 (yuqori o'ng burchakdagi UZ / EN / 日本語 tugmalari). Yangi dizayn, 5D ko'rinish.
 
