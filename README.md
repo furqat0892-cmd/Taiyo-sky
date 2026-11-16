@@ -1,4 +1,4 @@
-# Membrana hisobchisi (Android) v4.0
+# Membrana hisobchisi (Android) v5.0
 
 Tillar: O'zbekcha, English, 日本語 (yuqori o'ng burchakdagi UZ / EN / 日本語 tugmalari). Yangi dizayn, 5D ko'rinish.
 
@@ -51,3 +51,9 @@ Hisoblar taxminiy konsept darajasida. Yakuniy o'lcham, kuchlanish va narxni muha
 ## Tarjima qo'shish
 
 `index.html` ichida `const I18N=` bo'limi: kalit o'zbekcha matn, qiymat tarjima. `{}` raqam yoki nom o'rnini bildiradi, tarjimada `{1}`, `{2}` yoziladi.
+
+
+## v5.0 tuzilma
+Bo'limlar 5 ta: Loyiha (Kiritish, O'lchamlar, Variantlar), Muhandislik (Kuchlanish, Ilg'or tahlil), Xarajat (Pul oqimi, Risk), 3D / 5D, Ma'lumot (usullar va manbalar).
+Tepada doimiy "Tekshiruv" holati: kuchlanish zaxirasi va tarang yo'qolishi. Variantlar telefonda saqlanadi (8 tagacha).
+Narxlar yoniga manba va ishonch darajasi qo'yilgan (Xarajat > Pul oqimi > "Narxlar qayerdan olingan").
