@@ -62,3 +62,10 @@ Narxlar yoniga manba va ishonch darajasi qo'yilgan (Xarajat > Pul oqimi > "Narxl
 ## v6.0 yangiliklari
 - **Erkin shakl**: murakkab kesim uchun chegara nuqtalari (x, y, h) va ichki ustunlar jadvali. Dastur soddalashtirilgan muvozanat yuzasini quradi (haqiqiy form-finding emas).
 - **Eksport**: 3D to'r (OBJ, 3ds Max/Rhino/Blender uchun) va kesish ro'yxati (CSV). Android'da fayl Yuklashlar papkasiga saqlanadi (MainActivity.kt ichidagi AndroidApp ko'prigi).
+
+## v7.0 yangiliklari: Model bo'limi (Revit'dan kerakli funksiyalar)
+Pastki menyuda "Model" bo'limi: 3D / 5D, Chizmalar, Elementlar, Varaq.
+- **Chizmalar**: reja (balandlik rangi, to'r chiziqlari, o'lchamlar), fasad va kesim (kesim joyini surish mumkin). Hammasi modeldan avtomatik chiziladi.
+- **Elementlar**: mato polosalari, ustunlar, tayanch plitalar, poydevorlar va kabel jadvali; modelni qoidalar bo'yicha tekshirish; material hajmi; CSV.
+- **Varaq**: A3 varaq (reja, fasad, kesim, ko'rsatkichlar, shtamp), haqiqiy masshtabda. SVG va DXF (AutoCAD) eksport.
+- Jonli dizayn: chizma chiziladigan animatsiya, bo'limlar silliq ochiladi.
