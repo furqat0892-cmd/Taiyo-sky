@@ -57,3 +57,8 @@ Hisoblar taxminiy konsept darajasida. Yakuniy o'lcham, kuchlanish va narxni muha
 Bo'limlar 5 ta: Loyiha (Kiritish, O'lchamlar, Variantlar), Muhandislik (Kuchlanish, Ilg'or tahlil), Xarajat (Pul oqimi, Risk), 3D / 5D, Ma'lumot (usullar va manbalar).
 Tepada doimiy "Tekshiruv" holati: kuchlanish zaxirasi va tarang yo'qolishi. Variantlar telefonda saqlanadi (8 tagacha).
 Narxlar yoniga manba va ishonch darajasi qo'yilgan (Xarajat > Pul oqimi > "Narxlar qayerdan olingan").
+
+
+## v6.0 yangiliklari
+- **Erkin shakl**: murakkab kesim uchun chegara nuqtalari (x, y, h) va ichki ustunlar jadvali. Dastur soddalashtirilgan muvozanat yuzasini quradi (haqiqiy form-finding emas).
+- **Eksport**: 3D to'r (OBJ, 3ds Max/Rhino/Blender uchun) va kesish ro'yxati (CSV). Android'da fayl Yuklashlar papkasiga saqlanadi (MainActivity.kt ichidagi AndroidApp ko'prigi).
