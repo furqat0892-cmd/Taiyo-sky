@@ -64,6 +64,10 @@ class MainActivity : Activity() {
     }
 
     @SuppressLint("SetJavaScriptEnabled")
+    private var stoppedAt = 0L
+    override fun onStop() { super.onStop(); stoppedAt = System.currentTimeMillis() }
+    override fun onStart() { super.onStart(); if (stoppedAt == 0L || System.currentTimeMillis() - stoppedAt > 5000) taiyosky.intro.IntroView.show(this, force = true) }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         web = WebView(this)
@@ -74,7 +78,6 @@ class MainActivity : Activity() {
         web.webViewClient = WebViewClient()
         web.webChromeClient = WebChromeClient()
         setContentView(web)
-        taiyosky.intro.IntroView.show(this, force = true)
         web.loadUrl("file:///android_asset/index.html")
     }
 
