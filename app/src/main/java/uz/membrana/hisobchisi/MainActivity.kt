@@ -74,6 +74,7 @@ class MainActivity : Activity() {
         web.webViewClient = WebViewClient()
         web.webChromeClient = WebChromeClient()
         setContentView(web)
+        taiyosky.intro.IntroView.show(this)
         web.loadUrl("file:///android_asset/index.html")
     }
 
