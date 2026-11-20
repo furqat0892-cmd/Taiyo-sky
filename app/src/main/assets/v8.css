@@ -1,0 +1,80 @@
+/* ===== v8.1: Taiyo Sky dizayni (navy + oltin), yengil va tez ===== */
+:root{
+  --bg:#F3F5FA;--surface:#FFFFFF;--surface2:#E8EDF7;--ink:#0D1830;--muted:#58647F;--line:#D8DFEE;
+  --accent:#1B58C9;--accent-ink:#FFFFFF;--good:#1D8A59;--warn:#A8690F;--bad:#BE3B2B;
+  --hero1:#050F26;--hero2:#12347A;--sun:#E8B65C;--sky1:#A9C2EA;--sky2:#EAF0FB;--ground:#CCD7EC;--grid:#B6C4DF;
+  --shadow:0 1px 2px rgba(13,24,48,.06),0 8px 22px rgba(13,24,48,.07);
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#070D1C;--surface:#101A32;--surface2:#18264A;--ink:#E8EEFB;--muted:#93A1C0;--line:#223158;
+  --accent:#6FA0FF;--accent-ink:#06142F;--good:#4FC38A;--warn:#E0A64A;--bg2:#0b1226;--sun:#F0C066;
+  --hero1:#030914;--hero2:#0F2B66;--sky1:#10244A;--sky2:#1B3A6E;--ground:#14223F;--grid:#2A3C66;
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 8px 22px rgba(0,0,0,.35);}}
+:root[data-theme="dark"]{
+  --bg:#070D1C;--surface:#101A32;--surface2:#18264A;--ink:#E8EEFB;--muted:#93A1C0;--line:#223158;
+  --accent:#6FA0FF;--accent-ink:#06142F;--good:#4FC38A;--warn:#E0A64A;--bad:#EE7B6B;--sun:#F0C066;
+  --hero1:#030914;--hero2:#0F2B66;--sky1:#10244A;--sky2:#1B3A6E;--ground:#14223F;--grid:#2A3C66;
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 8px 22px rgba(0,0,0,.35);color-scheme:dark}
+/* tezlik: og'ir effektlarni o'chirish */
+*,*::before,*::after{animation:none!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
+.top::after,.top::before{display:none!important}
+.card,.kv div,button{transition:none!important;transform:none!important}
+body{background:var(--bg);padding-bottom:calc(84px + env(safe-area-inset-bottom,0px))}
+/* sarlavha */
+.top{background:linear-gradient(135deg,var(--hero1),var(--hero2));border-bottom:3px solid var(--sun);color:#fff;box-shadow:0 6px 20px rgba(5,15,38,.25)}
+.top h1,.top .stat b{color:#fff}.top small,.top .stat span{color:#B9C7E8}
+.top .stat{background:rgba(255,255,255,.08);border-radius:12px;padding:6px 10px}
+.top .stat span i{font-style:normal;color:var(--sun);font-weight:700}
+.lang button{background:rgba(255,255,255,.1);color:#DCE6FB;border:1px solid rgba(255,255,255,.2)}
+.lang button[aria-pressed="true"],.lang button[aria-current="true"],.lang button.on{background:var(--sun);color:#0D1830;border-color:var(--sun)}
+.chk{background:rgba(255,255,255,.1);color:#fff;border-radius:10px}
+/* kartochkalar */
+h2{font-size:21px;letter-spacing:-.01em}
+h2::after{content:"";display:block;width:36px;height:3px;border-radius:2px;background:var(--sun);margin-top:6px}
+h3{color:var(--ink)}
+.card,.cardx{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:14px;box-shadow:var(--shadow);margin:12px 0}
+.cardx h3{margin-top:0}
+.kv div{background:var(--surface);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow)}
+.kv div::before{background:linear-gradient(var(--accent),var(--sun))!important}
+.kv b{color:var(--ink)}
+input[type=number],input[type=text],input[type=password],select,textarea{width:100%;max-width:100%;min-height:44px;padding:8px 10px;border:1px solid var(--line);border-radius:12px;background:var(--surface);color:var(--ink);font:inherit;font-size:16px}
+input[type=number]{width:100%}
+textarea{resize:vertical}
+.fld{display:flex;flex-direction:column;gap:4px;min-width:0}.fld label{font-size:13px;color:var(--muted)}
+select{appearance:auto}
+button.plain{border-radius:12px;min-height:44px}
+button.prim,button.plain.prim{background:linear-gradient(135deg,var(--accent),var(--hero2));color:#fff;border:0;box-shadow:0 4px 14px rgba(27,88,201,.3)}
+.seg button[aria-pressed="true"]{background:linear-gradient(135deg,var(--accent),var(--hero2));border-color:transparent;color:#fff}
+.vrow{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}.vrow>*{flex:1 1 140px}
+/* yangi komponentlar */
+.code{font:12px/1.4 ui-monospace,Menlo,monospace;word-break:break-all}
+.qrbox{display:flex;justify-content:center;margin:10px 0}
+.qr{background:#fff;border-radius:12px;padding:8px;width:min(260px,70vw);box-shadow:var(--shadow);color:#0D1830;font-size:12px}.qr svg{width:100%;height:auto;display:block}
+.cks{display:grid;gap:8px}
+.ck{display:grid;grid-template-columns:14px 1fr;gap:2px 10px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:10px 12px;align-items:start}
+.ck i{width:10px;height:10px;border-radius:50%;margin-top:5px;background:var(--good)}.ck.wn i{background:var(--warn)}
+.ck span{font-weight:600;font-size:14px}.ck b{grid-column:2;font-weight:400;font-size:13px;color:var(--muted)}
+.bars .row{grid-template-columns:minmax(0,1fr) auto}.bars .row b{font-weight:600}
+.bars .row i u.acc{background:linear-gradient(90deg,var(--sun),#F7D68F)}
+.sunstage{height:min(92vw,420px);min-height:260px;background:var(--surface2)}
+.rprev{width:100%;height:560px;border:1px solid var(--line);border-radius:14px;background:#fff}
+.chips{display:flex;gap:8px;overflow-x:auto;padding:4px 0 8px;scrollbar-width:none}.chips::-webkit-scrollbar{display:none}
+.chip{flex:0 0 auto;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;padding:8px 14px;font:inherit;font-size:13px}
+.chat{display:flex;flex-direction:column;gap:8px;max-height:46vh;min-height:120px;overflow-y:auto;padding:6px 2px}
+.msg{max-width:88%;padding:9px 12px;border-radius:16px;font-size:14px;line-height:1.45;word-break:break-word}
+.msg.me{align-self:flex-end;background:linear-gradient(135deg,var(--accent),var(--hero2));color:#fff;border-bottom-right-radius:4px}
+.msg.bot{align-self:flex-start;background:var(--surface);border:1px solid var(--line);border-bottom-left-radius:4px}
+.chatin{display:flex;gap:8px;align-items:flex-end;margin-top:8px}.chatin textarea{flex:1;min-height:44px;max-height:120px}.chatin button{flex:0 0 auto}
+details.card summary{font-weight:600;cursor:pointer}
+/* menyu */
+.subnav{display:flex;gap:8px;overflow-x:auto;padding:2px 0 12px;margin:0 -2px;scrollbar-width:none;position:sticky;top:0;z-index:5}
+.subnav::-webkit-scrollbar{display:none}
+.subnav button{flex:0 0 auto;border:1px solid var(--line);background:var(--surface);color:var(--muted);border-radius:999px;padding:9px 16px;font:inherit;font-size:14px;white-space:nowrap;min-height:40px}
+.subnav button[aria-selected="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink);font-weight:600}
+.nav{background:var(--surface);border-top:1px solid var(--line);box-shadow:0 -8px 24px rgba(13,24,48,.1);padding-bottom:env(safe-area-inset-bottom,0px)}
+.nav button{color:var(--muted);border-radius:14px}
+.nav button[aria-current="page"]{background:color-mix(in srgb,var(--accent) 12%,transparent);color:var(--accent);font-weight:700}
+.nav button[aria-current="page"]::before{background:var(--sun)!important}
+/* tayyor namunalar */
+.seg.presets button,.seg.shapes button{border-radius:14px;box-shadow:var(--shadow)}
+.step{counter-increment:st}

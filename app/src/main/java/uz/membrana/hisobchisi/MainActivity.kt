@@ -3,7 +3,14 @@ package uz.membrana.hisobchisi
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.ContentValues
+import android.content.Intent
 import android.graphics.Color
+import android.print.PrintAttributes
+import android.print.PrintManager
+import android.content.Context
+import org.json.JSONObject
+import java.net.HttpURLConnection
+import java.net.URL
 import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
@@ -21,6 +28,7 @@ import java.io.File
 class MainActivity : Activity() {
 
     private lateinit var web: WebView
+    private var printWeb: WebView? = null
 
     inner class Bridge {
         @JavascriptInterface
@@ -61,13 +69,79 @@ class MainActivity : Activity() {
                 "ERR"
             }
         }
+
+        @JavascriptInterface
+        fun shareText(title: String, text: String) {
+            runOnUiThread {
+                try {
+                    val i = Intent(Intent.ACTION_SEND)
+                    i.type = "text/plain"
+                    i.putExtra(Intent.EXTRA_SUBJECT, title)
+                    i.putExtra(Intent.EXTRA_TEXT, text)
+                    startActivity(Intent.createChooser(i, title))
+                } catch (e: Exception) {
+                }
+            }
+        }
+
+        @JavascriptInterface
+        fun printHtml(title: String, html: String) {
+            runOnUiThread {
+                try {
+                    val w = WebView(this@MainActivity)
+                    printWeb = w
+                    w.settings.javaScriptEnabled = false
+                    w.webViewClient = object : WebViewClient() {
+                        override fun onPageFinished(view: WebView, url: String) {
+                            val pm = getSystemService(Context.PRINT_SERVICE) as PrintManager
+                            val name = if (title.isBlank()) "Hisobot" else title
+                            pm.print(name, view.createPrintDocumentAdapter(name), PrintAttributes.Builder().build())
+                        }
+                    }
+                    w.loadDataWithBaseURL(null, html, "text/html", "UTF-8", null)
+                } catch (e: Exception) {
+                }
+            }
+        }
+
+        @JavascriptInterface
+        fun httpReq(id: Int, method: String, url: String, body: String, headersJson: String) {
+            Thread {
+                var status = 0
+                var out = ""
+                try {
+                    val c = URL(url).openConnection() as HttpURLConnection
+                    c.requestMethod = method
+                    c.connectTimeout = 15000
+                    c.readTimeout = 60000
+                    val h = JSONObject(headersJson)
+                    val keys = h.keys()
+                    while (keys.hasNext()) {
+                        val k = keys.next()
+                        c.setRequestProperty(k, h.getString(k))
+                    }
+                    if (method != "GET" && body.isNotEmpty()) {
+                        c.doOutput = true
+                        c.outputStream.use { o -> o.write(body.toByteArray(Charsets.UTF_8)) }
+                    }
+                    status = c.responseCode
+                    val st = if (status >= 400) c.errorStream else c.inputStream
+                    out = st?.bufferedReader(Charsets.UTF_8)?.use { r -> r.readText() } ?: ""
+                } catch (e: Exception) {
+                    status = 0
+                    out = "{}"
+                }
+                val js = "window.__mhHttp(" + id + "," + status + "," + JSONObject.quote(out) + ")"
+                runOnUiThread { web.evaluateJavascript(js, null) }
+            }.start()
+        }
     }
 
-    @SuppressLint("SetJavaScriptEnabled")
     private var stoppedAt = 0L
     override fun onStop() { super.onStop(); stoppedAt = System.currentTimeMillis() }
     override fun onStart() { super.onStart(); if (stoppedAt == 0L || System.currentTimeMillis() - stoppedAt > 5000) taiyosky.intro.IntroView.show(this, force = true) }
 
+    @SuppressLint("SetJavaScriptEnabled")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         web = WebView(this)
