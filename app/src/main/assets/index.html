@@ -603,6 +603,15 @@ button{-webkit-tap-highlight-color:transparent}
     <div class="hint" style="margin-top:8px">3D shakl + vaqt (4D) + xarajat (5D). Slayderni siljiting: poydevor, po'lat va membrana ish jadvali bo'yicha qurilib boradi, sarflangan pul esa pul oqimi hisobidan olinadi.</div>
   </div>
   <div class="hint" id="cap3d" style="margin-top:8px"></div>
+<div class="card cardx" id="rl-box">
+  <h3>Realistik ko'rinish</h3>
+  <label class="chk2"><input type="checkbox" id="rl-on" checked> Realistik rejim (osmon, soya, material)</label>
+  <div class="seg" id="rl-light"><button type="button" data-l="day">Kunduz</button><button type="button" data-l="gold">Quyosh botishi</button><button type="button" data-l="night">Kechasi</button></div>
+  <label class="chk2"><input type="checkbox" id="rl-ent" checked> Daraxt va odamlar</label>
+  <div class="vrow"><button type="button" class="plain" id="rl-cam">Realistik kadr</button><button type="button" class="plain" id="rl-eye">Odam ko'zi bilan</button><button type="button" class="plain prim" id="rl-shot">Rasm olish</button></div>
+  <div class="note" id="rl-note" hidden></div>
+</div>
+
   <div class="ctl">
     <button type="button" class="plain" data-view="persp">Perspektiv</button>
     <button type="button" class="plain" data-view="top">Ustidan</button>
@@ -2426,6 +2435,7 @@ function init3(){
     const d2=new THREE.DirectionalLight(0xffffff,0.25);d2.position.set(-60,40,-60);scene.add(d2);
     const group=new THREE.Group();scene.add(group);
     T3={m5:-1,renderer,scene,camera,group,theta:0.9,phi:1.05,radius:60,target:new THREE.Vector3(),auto:true,wire:false,masts:true,op:0.9,mats:{}};
+    if(window.MH3_init)window.MH3_init(T3,THREE);
     const ptr=new Map();let last=0;
     cv.addEventListener("pointerdown",e=>{cv.setPointerCapture(e.pointerId);ptr.set(e.pointerId,{x:e.clientX,y:e.clientY});last=0;stopAuto();});
     cv.addEventListener("pointermove",e=>{
@@ -2500,8 +2510,8 @@ function update3(){
   const m=Math.max(S.L,S.W);
   /* yer va to'r */
   const gr=new THREE.Mesh(new THREE.CircleGeometry(m*2.4,72),new THREE.MeshBasicMaterial({color:tok("--ground")}));
-  gr.rotation.x=-Math.PI/2;gr.position.y=-0.05;G.add(gr);
-  const grid=new THREE.GridHelper(m*3.4,34,tok("--grid"),tok("--grid"));grid.position.y=0;G.add(grid);
+  gr.rotation.x=-Math.PI/2;gr.position.y=-0.05;gr.name="ground";G.add(gr);
+  const grid=new THREE.GridHelper(m*3.4,34,tok("--grid"),tok("--grid"));grid.position.y=0;grid.name="grid";G.add(grid);
   /* membrana */
   const geo=new THREE.BufferGeometry();
   geo.setAttribute("position",new THREE.Float32BufferAttribute(g.pos,3));geo.setIndex(g.idx);geo.computeVertexNormals();
@@ -2509,37 +2519,38 @@ function update3(){
   const P5=ph5();sync5();
   const nIdx=Math.floor(g.idx.length/3*P5.mem)*3;
   geo.setDrawRange(0,nIdx);
-  const mesh=new THREE.Mesh(geo,mat);mesh.visible=nIdx>0;G.add(mesh);
+  const mesh=new THREE.Mesh(geo,mat);mesh.name="membrane";mesh.visible=nIdx>0;G.add(mesh);
   if(T3.wire&&nIdx>0){const wm=new THREE.Mesh(geo,new THREE.MeshBasicMaterial({color:tok("--accent"),wireframe:true,transparent:true,opacity:0.35}));G.add(wm);}
   /* chekka kabellar */
   if(P5.mem>0)g.loops.forEach(lp=>{const pts=lp.map(i=>new THREE.Vector3(g.pos[i*3],g.pos[i*3+1],g.pos[i*3+2]));pts.push(pts[0].clone());
-    G.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts),new THREE.LineBasicMaterial({color:tok("--ink")})));});
+    {const ln=new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts),new THREE.LineBasicMaterial({color:tok("--ink")}));ln.name="cable";G.add(ln);}});
   /* ustunlar */
   if(T3.masts){
     const rm=clamp(m*0.006,0.12,0.7),sm=new THREE.MeshStandardMaterial({color:0x8b97a4,roughness:0.5,metalness:0.4});
     g.sup.forEach(s=>{const r=s.k==="main"?rm:rm*0.7,h=Math.max(0.2,s.top);
-      const hh=h*P5.steel;if(hh<0.05)return;const c=new THREE.Mesh(new THREE.CylinderGeometry(r*0.75,r,hh,14),sm);c.position.set(s.x,hh/2,s.z);G.add(c);});
+      const hh=h*P5.steel;if(hh<0.05)return;const c=new THREE.Mesh(new THREE.CylinderGeometry(r*0.75,r,hh,14),sm);c.position.set(s.x,hh/2,s.z);c.name="mast";G.add(c);});
   }
   /* shaklga xos qo'shimchalar */
   if(S.shape==="stad"){
     const field=new THREE.Mesh(new THREE.CircleGeometry(1,48),new THREE.MeshBasicMaterial({color:0x3f8f55}));
-    field.scale.set(S.L/2*0.34,S.W/2*0.34,1);field.rotation.x=-Math.PI/2;field.position.y=0.05;if(P5.found>0)G.add(field);
+    field.scale.set(S.L/2*0.34,S.W/2*0.34,1);field.rotation.x=-Math.PI/2;field.position.y=0.05;field.name="field";if(P5.found>0)G.add(field);
     for(let k=0;k<Math.ceil(6*P5.found);k++){
       const r1=0.38+0.075*k,r2=r1+0.075;
       const ring=new THREE.Mesh(new THREE.RingGeometry(r1,r2,64),new THREE.MeshStandardMaterial({color:k%2?0x9aa5b1:0x838f9c,side:THREE.DoubleSide,roughness:0.9}));
-      ring.scale.set(S.L/2,S.W/2,1);ring.rotation.x=-Math.PI/2;ring.position.y=0.3+k*(S.Hb*0.8/6);G.add(ring);
+      ring.scale.set(S.L/2,S.W/2,1);ring.rotation.x=-Math.PI/2;ring.position.y=0.3+k*(S.Hb*0.8/6);ring.name="ring";G.add(ring);
     }
   }else{
     const slab=new THREE.Mesh(new THREE.PlaneGeometry(S.L*1.1,S.W*1.1),new THREE.MeshStandardMaterial({color:0xb7bec6,roughness:1}));
-    slab.rotation.x=-Math.PI/2;slab.position.y=0.03;if(P5.found>0)G.add(slab);
+    slab.rotation.x=-Math.PI/2;slab.position.y=0.03;slab.name="slab";if(P5.found>0)G.add(slab);
   }
   /* odam o'lchami */
   const pm=new THREE.MeshStandardMaterial({color:0xd9602f,roughness:0.8});
   [[1,0],[2.2,0.8]].forEach(o=>{
     const px=S.shape==="stad"?S.L/2*0.34+o[0]:S.L/2+1.5+o[0],pz=S.shape==="stad"?o[1]:S.W/2*0.4+o[1];
-    const b=new THREE.Mesh(new THREE.CylinderGeometry(0.22,0.22,1.55,10),pm);b.position.set(px,0.78,pz);G.add(b);
-    const hd=new THREE.Mesh(new THREE.SphereGeometry(0.16,10,8),pm);hd.position.set(px,1.66,pz);G.add(hd);
+    const b=new THREE.Mesh(new THREE.CylinderGeometry(0.22,0.22,1.55,10),pm);b.position.set(px,0.78,pz);b.name="person";G.add(b);
+    const hd=new THREE.Mesh(new THREE.SphereGeometry(0.16,10,8),pm);hd.position.set(px,1.66,pz);hd.name="person";G.add(hd);
   });
+  if(window.MH3_post)window.MH3_post(T3,P5,g,T,S,THREE);
   $("#cap3d").textContent=SHAPES[S.shape].n+": "+S.L+" x "+S.W+" m, eng baland nuqta "+fmt1(g.maxY,1)+" m, membrana "+fmt(R.gross)+" m², material: "+T.name+".";
 }
 $$("[data-view]").forEach(b=>b.addEventListener("click",()=>view3(b.dataset.view)));

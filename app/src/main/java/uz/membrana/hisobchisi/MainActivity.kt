@@ -3,7 +3,10 @@ package uz.membrana.hisobchisi
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.ContentValues
+import android.content.ContentValues
 import android.content.Intent
+import android.provider.MediaStore
+import android.util.Base64
 import android.graphics.Color
 import android.print.PrintAttributes
 import android.print.PrintManager
@@ -64,6 +67,26 @@ class MainActivity : Activity() {
                         f.writeText(text, Charsets.UTF_8)
                         "OK:" + f.absolutePath
                     }
+                }
+            } catch (e: Exception) {
+                "ERR"
+            }
+        }
+
+        @JavascriptInterface
+        fun saveImage(name: String, base64: String): String {
+            return try {
+                val bytes = Base64.decode(base64, Base64.DEFAULT)
+                val v = ContentValues()
+                v.put(MediaStore.Images.Media.DISPLAY_NAME, name)
+                v.put(MediaStore.Images.Media.MIME_TYPE, "image/png")
+                v.put(MediaStore.Images.Media.RELATIVE_PATH, "Pictures/TaiyoSky")
+                val uri = contentResolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, v)
+                if (uri == null) {
+                    "ERR"
+                } else {
+                    contentResolver.openOutputStream(uri)?.use { o -> o.write(bytes) }
+                    "OK:Pictures/TaiyoSky"
                 }
             } catch (e: Exception) {
                 "ERR"

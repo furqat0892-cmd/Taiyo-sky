@@ -78,3 +78,4 @@ details.card summary{font-weight:600;cursor:pointer}
 /* tayyor namunalar */
 .seg.presets button,.seg.shapes button{border-radius:14px;box-shadow:var(--shadow)}
 .step{counter-increment:st}
+.chk2{display:flex;gap:8px;align-items:center;font-size:14px;margin:6px 0}.chk2 input{width:20px;height:20px}
