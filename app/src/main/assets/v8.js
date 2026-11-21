@@ -409,8 +409,10 @@ let httpSeq=0;const httpCB={};
 window.__mhHttp=(id,status,body)=>{const f=httpCB[id];if(f){delete httpCB[id];f(status,body);}};
 function httpReq(method,url,body,headers){
   return new Promise((res,rej)=>{
-    if(window.AndroidApp&&window.AndroidApp.httpReq){const id=++httpSeq;httpCB[id]=(s,b)=>res({status:s,text:b});
-      try{window.AndroidApp.httpReq(id,method,url,body||"",JSON.stringify(headers||{}));}catch(e){rej(e);}return;}
+    if(window.AndroidApp&&window.AndroidApp.httpReq){const id=++httpSeq;let got=false;httpCB[id]=(s,b)=>{got=true;res({status:s,text:b});};
+      try{window.AndroidApp.httpReq(id,method,url,body||"",JSON.stringify(headers||{}));}catch(e){rej(e);return;}
+      setTimeout(()=>{if(got)return;fetch(url,{method:method,headers:headers,body:method==="GET"?undefined:body}).then(r=>r.text().then(x=>{if(!got){got=true;res({status:r.status,text:x});}})).catch(()=>{});},12000);
+      return;}
     fetch(url,{method:method,headers:headers,body:method==="GET"?undefined:body}).then(r=>r.text().then(x=>res({status:r.status,text:x}))).catch(rej);
   });
 }
@@ -443,14 +445,18 @@ function ask(q){
   const hist=M8.st.chat.slice(0,-1).slice(-10).map(m=>({role:m.r==="u"?"user":"model",parts:[{text:m.t}]}));
   const body=JSON.stringify({systemInstruction:{parts:[{text:SYS+ctxText()}]},contents:hist,generationConfig:{maxOutputTokens:2048,temperature:0.4}});
   const url="https://generativelanguage.googleapis.com/v1beta/models/"+encodeURIComponent(M8.st.aiModel||"gemini-flash-latest")+":generateContent";
+  let secs=0;const tmr=setInterval(()=>{secs++;wait.t="… "+secs+" s";if(secs>=100){clearInterval(tmr);}renderChat();},1000);
+  let done=false;const fin=()=>{if(done)return false;done=true;clearInterval(tmr);return true;};
+  setTimeout(()=>{if(fin()){wait.t=t("Javob kelmadi. Internetni tekshirib, qayta urinib ko'ring.");busy=false;$("#ai-send").disabled=false;M8.saveSt();renderChat();}},100000);
   httpReq("POST",url,body,{"Content-Type":"application/json","x-goog-api-key":M8.st.aiKey}).then(r=>{
-    let txt="";
+    if(!fin())return;let txt="";
+    if(r.status===0){wait.t=t("Internetga ulanib bo'lmadi.");return;}
     try{const j=JSON.parse(r.text);
       if(r.status>=400)txt=t("Xato")+" "+r.status+": "+((j.error&&j.error.message)||"").slice(0,160);
       else txt=(j.candidates&&j.candidates[0]&&j.candidates[0].content&&j.candidates[0].content.parts||[]).map(p=>p.text||"").join("")||t("Javob bo'sh keldi.");}
     catch(e){txt=t("Javobni o'qib bo'lmadi.");}
     wait.t=txt;
-  }).catch(()=>{wait.t=t("Internetga ulanib bo'lmadi.");}).then(()=>{busy=false;$("#ai-send").disabled=false;M8.saveSt();renderChat();});
+  }).catch(()=>{if(fin())wait.t=t("Internetga ulanib bo'lmadi.");}).then(()=>{busy=false;$("#ai-send").disabled=false;M8.saveSt();renderChat();});
 }
 $("#ai-send").addEventListener("click",()=>ask($("#ai-in").value));
 $("#ai-in").addEventListener("keydown",e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();ask($("#ai-in").value);}});
