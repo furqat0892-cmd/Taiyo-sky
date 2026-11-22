@@ -92,3 +92,10 @@ details.card summary{font-weight:600;cursor:pointer}
 .cinefx .cf-bar{position:absolute;left:0;right:0;height:0;background:#000;transition:height .35s}
 .cinefx.bars .cf-bar{height:11%}
 .cinefx .cf-bar.t{top:0}.cinefx .cf-bar.b{bottom:0}
+
+/* ===== v8.6: material va video ===== */
+.swatches{display:flex;flex-wrap:wrap;gap:8px;margin:4px 0 10px}
+.swatches .sw{width:34px;height:34px;min-height:34px;padding:0;border-radius:50%;border:2px solid var(--line);box-shadow:inset 0 0 0 2px rgba(255,255,255,.55)}
+.swatches .sw[aria-pressed="true"]{border-color:var(--accent);box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 30%,transparent),inset 0 0 0 2px rgba(255,255,255,.7)}
+.swatches .sw.auto{background:conic-gradient(#F4F5F2,#7FB2E5,#C8453A,#4E8B5E,#EADFC8,#F4F5F2)}
+#cp-dv{display:inline-block;margin-left:6px}

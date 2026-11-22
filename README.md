@@ -76,3 +76,7 @@ Pastki menyuda "Model" bo'limi: 3D / 5D, Chizmalar, Elementlar, Varaq.
 - Avto-aylanish qaytarildi: ekranga tegsangiz to'xtaydi, 5 soniyadan keyin o'zi davom etadi.
 - Tasvir sifati: Oddiy, Yuqori, Ultra (kino rang, donadorlik, yaltirash). Telefon sekin ishlasa, sifat o'zi pasayadi.
 - Kino ramka (keng ekran qora chiziqlar) va stadion yoritgich ustunlari.
+
+## v8.6: material tanlash va kamera yo'li
+- 3D bo'limida membrana rangi, yaltirash, shaffoflik va ustun/kabel materiali (Oq, Po'lat, Qora, Oltin).
+- Kamera yo'li: kadrlar qo'shib, silliq harakatni ko'rish va videoga yozish (Movies/TaiyoSky). Kadr bo'lmasa, loyiha atrofida to'liq aylanadi.

@@ -611,6 +611,29 @@ button{-webkit-tap-highlight-color:transparent}
   <div class="seg" id="rl-q"><button type="button" data-q="low">Oddiy</button><button type="button" data-q="high">Yuqori</button><button type="button" data-q="cine">Ultra</button></div>
   <label class="chk2"><input type="checkbox" id="rl-ent" checked> Daraxt va odamlar</label>
   <label class="chk2"><input type="checkbox" id="rl-bars"> Kino ramka (keng ekran)</label>
+  <div class="hint" style="margin:10px 0 4px">Membrana rangi</div>
+  <div class="swatches" id="mt-col">
+    <button type="button" data-c="auto" class="sw auto" aria-label="Avtomatik"></button>
+    <button type="button" data-c="#F4F5F2" class="sw" style="background:#F4F5F2" aria-label="Oq"></button>
+    <button type="button" data-c="#EADFC8" class="sw" style="background:#EADFC8" aria-label="Krem"></button>
+    <button type="button" data-c="#C9CED5" class="sw" style="background:#C9CED5" aria-label="Kumush"></button>
+    <button type="button" data-c="#7FB2E5" class="sw" style="background:#7FB2E5" aria-label="Och ko'k"></button>
+    <button type="button" data-c="#1F3F7A" class="sw" style="background:#1F3F7A" aria-label="To'q ko'k"></button>
+    <button type="button" data-c="#C8453A" class="sw" style="background:#C8453A" aria-label="Qizil"></button>
+    <button type="button" data-c="#4E8B5E" class="sw" style="background:#4E8B5E" aria-label="Yashil"></button>
+    <button type="button" data-c="#2A2D33" class="sw" style="background:#2A2D33" aria-label="Qora"></button>
+  </div>
+  <div class="fld"><label for="mt-gl">Yaltirash</label><input type="range" id="mt-gl" min="0" max="100" value="40" style="width:100%;accent-color:var(--accent)"></div>
+  <div class="fld"><label for="mt-op">Shaffoflik</label><input type="range" id="mt-op" min="30" max="100" value="90" style="width:100%;accent-color:var(--accent)"></div>
+  <div class="hint" style="margin:8px 0 4px">Ustun va kabel</div>
+  <div class="seg" id="mt-st"><button type="button" data-s="auto">Avto</button><button type="button" data-s="white">Oq</button><button type="button" data-s="steel">Po'lat</button><button type="button" data-s="black">Qora</button><button type="button" data-s="gold">Oltin</button></div>
+  <div class="vrow"><button type="button" class="plain" id="mt-reset">Avtomatik holatga qaytarish</button></div>
+  <div class="hint" style="margin:12px 0 4px">Kamera yo'li va video</div>
+  <div class="hint">Kamerani kerakli joyga qo'yib "Kadr qo'shish"ni bosing. Kadr bo'lmasa, loyiha atrofida to'liq aylanadi.</div>
+  <div class="kv"><div><span>Kadrlar soni</span><b id="cp-n">0</b></div></div>
+  <div class="fld"><label for="cp-dur">Davomiyligi (soniya)</label><input type="range" id="cp-dur" min="6" max="30" value="12" style="width:100%;accent-color:var(--accent)"><b id="cp-dv">12</b></div>
+  <div class="vrow"><button type="button" class="plain" id="cp-add">Kadr qo'shish</button><button type="button" class="plain" id="cp-clr">Kadrlarni tozalash</button></div>
+  <div class="vrow"><button type="button" class="plain" id="cp-play">Ko'rish</button><button type="button" class="plain prim" id="cp-rec">Video yozish</button></div>
   <div class="vrow"><button type="button" class="plain" id="rl-cam">Realistik kadr</button><button type="button" class="plain" id="rl-eye">Odam ko'zi bilan</button><button type="button" class="plain prim" id="rl-shot">Rasm olish</button></div>
   <div class="note" id="rl-note" hidden></div>
 </div>
@@ -2482,6 +2505,7 @@ function loop(){
   const now=performance.now(),c=T3.camera;
   if(!T3.auto&&T3.resumeAt&&now>T3.resumeAt&&!T3.down&&$("#o-auto").checked){T3.auto=true;T3.resumeAt=0;}
   const dt=T3.t0?Math.min(0.05,(now-T3.t0)/1000):0.016;T3.t0=now;
+  if(window.MH3_tick&&window.MH3_tick(T3,now))T3.force=true;
   if(T3.auto)T3.theta+=0.2*dt;
   let ph=T3.phi,r=T3.radius;
   if(T3.cine&&T3.auto){const t=now/1000;ph=clamp(ph+Math.sin(t*0.23)*0.05,0.12,1.52);r*=1+Math.sin(t*0.15)*0.03;}

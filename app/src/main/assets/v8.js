@@ -498,7 +498,7 @@ M8.init();
 const MH=window.MH,M8=window.MH8;if(!MH||!M8)return;
 const $=MH.$,$$=MH.$$,clamp=MH.clamp;
 let T3=null,TH=null,H=null,envKey="",envGrp=null,lastKey="";
-const st={on:true,light:"kino",ent:true,q:"high",bars:false};
+const st={on:true,light:"kino",ent:true,q:"high",bars:false,mc:"auto",mg:null,mo:null,ms:"auto"};
 try{const o=JSON.parse(localStorage.getItem("mh9-real")||"null");if(o)Object.assign(st,o);}catch(e){}
 const saveSt=()=>{try{localStorage.setItem("mh9-real",JSON.stringify(st));}catch(e){}};
 const rng=seed=>()=>{seed|=0;seed=seed+0x6D2B79F5|0;let t=Math.imul(seed^seed>>>15,1|seed);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};
@@ -529,6 +529,8 @@ function pitchTex(){
 function glowTex(){const c=document.createElement("canvas");c.width=c.height=128;const x=c.getContext("2d"),g=x.createRadialGradient(64,64,0,64,64,64);
   g.addColorStop(0,"rgba(255,255,255,1)");g.addColorStop(0.15,"rgba(255,240,210,.8)");g.addColorStop(1,"rgba(255,220,160,0)");x.fillStyle=g;x.fillRect(0,0,128,128);return new TH.CanvasTexture(c);}
 
+const STEEL={white:[0xF2F3F5,0.15,0.45],steel:[0xB8BEC7,0.95,0.22],black:[0x24272C,0.7,0.35],gold:[0xD9A441,1,0.25]};
+function steelMat(c,mt,rg){const k=STEEL[st.ms];return new TH.MeshStandardMaterial({color:k?k[0]:c,metalness:k?k[1]:mt,roughness:k?k[2]:rg});}
 /* ---------- sifat darajalari va kino effektlari ---------- */
 const QS={low:{pr:1,sh:1024,bloom:false,grade:false,fx:false},high:{pr:1.5,sh:2048,bloom:false,grade:false,fx:true},cine:{pr:2,sh:2048,bloom:true,grade:true,fx:true,cine:true}};
 let fx=null,fxBloom=null,bctx=null,ma=0.0167,lowN=0;
@@ -795,16 +797,16 @@ window.MH3_post=(t3,P5,g,T,S,three)=>{
     case "membrane":{
       const old=o.material,geo=o.geometry;
       if(!geo.attributes.uv){const p=geo.attributes.position,uv=new Float32Array(p.count*2);for(let i=0;i<p.count;i++){uv[i*2]=p.getX(i);uv[i*2+1]=p.getZ(i);}geo.setAttribute("uv",new TH.BufferAttribute(uv,2));}
-      const et=S.mtype==="ETFE",col=hex(T.color);if(P.maket)col.lerp(hex("#FFFFFF"),0.65);
-      o.material=new TH.MeshPhysicalMaterial({clearcoat:et?1:0.12,clearcoatRoughness:et?0.08:0.45,color:col,map:tex,bumpMap:tex,bumpScale:0.6,side:TH.DoubleSide,transparent:true,opacity:et?Math.min(old.opacity,0.55):Math.min(0.96,old.opacity),
-        roughness:et?0.12:0.62,metalness:0,emissive:P.night?hex("#FFD9A0"):col,emissiveIntensity:P.night?0.55:P.emis*0.5,envMapIntensity:et?1.4:0.5});
+      const et=S.mtype==="ETFE",col=hex(st.mc!=="auto"?st.mc:T.color);if(P.maket)col.lerp(hex("#FFFFFF"),0.65);
+      o.material=new TH.MeshPhysicalMaterial({clearcoat:et?1:0.12,clearcoatRoughness:et?0.08:0.45,color:col,map:tex,bumpMap:tex,bumpScale:0.6,side:TH.DoubleSide,transparent:true,opacity:st.mo!=null?st.mo/100:(et?Math.min(old.opacity,0.55):Math.min(0.96,old.opacity)),
+        roughness:st.mg!=null?(0.95-st.mg*0.0085):(et?0.12:0.62),metalness:0,emissive:P.night?hex("#FFD9A0"):col.clone(),emissiveIntensity:P.night?0.55:P.emis*0.5,envMapIntensity:et?1.4:0.5});
       old.dispose();o.castShadow=true;o.receiveShadow=false;break;}
     case "cable":{
       o.visible=false;const pts=o.geometry.getAttribute("position"),arr=[];for(let i=0;i<pts.count;i++)arr.push(new TH.Vector3(pts.getX(i),pts.getY(i),pts.getZ(i)));
       if(arr.length>3){const cu=new TH.CatmullRomCurve3(arr,false,"catmullrom",0.2),rad=clamp(m*0.0032,0.04,0.2);
-        const tb=new TH.Mesh(new TH.TubeGeometry(cu,Math.min(600,arr.length*2),rad,6,false),new TH.MeshStandardMaterial({color:0xC9CED5,metalness:0.85,roughness:0.32}));tb.castShadow=true;tb.name="cablet";G.add(tb);}
+        const tb=new TH.Mesh(new TH.TubeGeometry(cu,Math.min(600,arr.length*2),rad,6,false),steelMat(0xC9CED5,0.85,0.32));tb.castShadow=true;tb.name="cablet";G.add(tb);}
       break;}
-    case "mast":o.material=P.maket?new TH.MeshStandardMaterial({color:0xF1F2F4,metalness:0.1,roughness:0.5}):new TH.MeshStandardMaterial({color:0xD6DAE0,metalness:0.8,roughness:0.3});o.castShadow=true;o.receiveShadow=true;break;
+    case "mast":o.material=P.maket?steelMat(0xF1F2F4,0.1,0.5):steelMat(0xD6DAE0,0.8,0.3);o.castShadow=true;o.receiveShadow=true;break;
     case "field":o.material=new TH.MeshStandardMaterial({map:pitchTex(),roughness:0.95});lay(o,5);o.position.y=Math.max(0.2,m*0.004);o.receiveShadow=true;break;
     case "ring":o.material.roughness=0.9;o.receiveShadow=true;o.castShadow=true;break;
     case "slab":o.visible=false;break;
@@ -862,6 +864,68 @@ $("#rl-shot").addEventListener("click",()=>{
     if(!ok){const a=document.createElement("a");a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();toast(M8.t("Rasm yuklab olindi."));}
   }catch(e){try{r.setPixelRatio(Math.min(window.devicePixelRatio||1,2));r.setSize(w,h,false);}catch(x){}toast(M8.t("Rasmni olib bo'lmadi."));}
 });
+/* ---------- material tanlash ---------- */
+function mtUI(){
+  $$("#mt-col .sw").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.c===st.mc)));
+  $$("#mt-st button").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.s===st.ms)));
+  if(st.mg!=null)$("#mt-gl").value=st.mg;if(st.mo!=null)$("#mt-op").value=st.mo;
+}
+$("#mt-col").addEventListener("click",e=>{const b=e.target.closest(".sw");if(!b)return;st.mc=b.dataset.c;saveSt();mtUI();redo();});
+$("#mt-st").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;st.ms=b.dataset.s;saveSt();mtUI();redo();});
+$("#mt-gl").addEventListener("input",e=>{st.mg=+e.target.value;saveSt();redo();});
+$("#mt-op").addEventListener("input",e=>{st.mo=+e.target.value;saveSt();redo();});
+$("#mt-reset").addEventListener("click",()=>{st.mc="auto";st.mg=null;st.mo=null;st.ms="auto";$("#mt-gl").value=40;$("#mt-op").value=90;saveSt();mtUI();redo();});
+/* ---------- kamera yo'li va video ---------- */
+const KF=[];let PL=null,rec=null,chunks=[],recTimer=0;
+const wrapPi=a=>{while(a>Math.PI)a-=2*Math.PI;while(a<-Math.PI)a+=2*Math.PI;return a;};
+function cpUI(){$("#cp-n").textContent=KF.length;$("#cp-dv").textContent=$("#cp-dur").value;$("#cp-play").textContent=PL?M8.t("To'xtatish"):M8.t("Ko'rish");$("#cp-rec").disabled=!!rec;}
+$("#cp-dur").addEventListener("input",cpUI);
+$("#cp-add").addEventListener("click",()=>{if(!T3)return;let th=T3.theta;if(KF.length)th=KF[KF.length-1].th+wrapPi(th-KF[KF.length-1].th);KF.push({th:th,ph:T3.phi,r:T3.radius,ty:T3.target.y});cpUI();toast(M8.t("Kadr qo'shildi."));});
+$("#cp-clr").addEventListener("click",()=>{KF.length=0;cpUI();});
+const cr=(p0,p1,p2,p3,t)=>0.5*((2*p1)+(-p0+p2)*t+(2*p0-5*p1+4*p2-p3)*t*t+(-p0+3*p1-3*p2+p3)*t*t*t);
+function camAt(u){
+  if(KF.length<2){const b=PL.base,a=u*Math.PI*2;return {th:b.th+a,ph:clamp(b.ph+Math.sin(a)*0.05,0.12,1.5),r:b.r*(1+Math.sin(a)*0.04),ty:b.ty};}
+  const e=u*u*(3-2*u),n=KF.length-1,x=e*n,i=Math.min(n-1,Math.floor(x)),t=x-i,g=k=>KF[Math.max(0,Math.min(n,k))],o={};
+  ["th","ph","r","ty"].forEach(k=>{o[k]=cr(g(i-1)[k],g(i)[k],g(i+1)[k],g(i+2)[k],t);});o.ph=clamp(o.ph,0.1,1.52);return o;
+}
+function playPath(done){
+  if(!T3)return;PL={t0:0,dur:+$("#cp-dur").value*1000,done:done,base:{th:T3.theta,ph:T3.phi,r:T3.radius,ty:T3.target.y}};
+  if(KF.length>=2){const c=KF[0];T3.theta=c.th;T3.phi=c.ph;T3.radius=c.r;T3.target.y=c.ty;}
+  T3.auto=false;T3.resumeAt=0;cpUI();
+}
+function stopPath(){if(!PL)return;const d=PL.done;PL=null;if(T3){T3.auto=$("#o-auto").checked;T3.force=true;}cpUI();if(d)d();}
+window.MH3_tick=(t3,now)=>{
+  if(!PL)return false;if(!PL.t0)PL.t0=now;const u=Math.min(1,(now-PL.t0)/PL.dur),c=camAt(u);
+  t3.theta=c.th;t3.phi=c.ph;t3.radius=c.r;t3.target.y=c.ty;t3.auto=false;
+  if(u>=1)stopPath();return true;
+};
+$("#cp-play").addEventListener("click",()=>{if(PL)stopPath();else playPath(null);});
+function saveVideo(blob,mt){
+  const ext=(mt||"").indexOf("mp4")>=0?"mp4":"webm",name="taiyo-sky-"+Date.now()+"."+ext,mime=ext==="mp4"?"video/mp4":"video/webm";
+  const fr=new FileReader();
+  fr.onload=()=>{
+    const b64=String(fr.result).split(",")[1]||"";let ok=false;
+    try{if(window.AndroidApp&&window.AndroidApp.videoOpen){
+      if(String(window.AndroidApp.videoOpen(name,mime)).indexOf("OK")===0){
+        const CH=393216;for(let i=0;i<b64.length;i+=CH)window.AndroidApp.videoChunk(b64.slice(i,i+CH));
+        const r=String(window.AndroidApp.videoClose());if(r.indexOf("OK:")===0){toast(M8.t("Video saqlandi:")+" "+r.slice(3));ok=true;}}}}catch(e){}
+    if(!ok){const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();a.remove();toast(M8.t("Video yuklab olindi."));}
+    rec=null;cpUI();
+  };
+  fr.readAsDataURL(blob);
+}
+$("#cp-rec").addEventListener("click",()=>{
+  if(!T3||rec)return;const cv=T3.renderer.domElement;
+  if(!cv.captureStream||!window.MediaRecorder){toast(M8.t("Bu telefonda video yozib bo'lmaydi."));return;}
+  const mt=["video/webm;codecs=vp9","video/webm;codecs=vp8","video/webm","video/mp4"].find(x=>MediaRecorder.isTypeSupported(x));
+  try{rec=new MediaRecorder(cv.captureStream(30),mt?{mimeType:mt,videoBitsPerSecond:6000000}:{});}catch(e){rec=null;toast(M8.t("Bu telefonda video yozib bo'lmaydi."));return;}
+  chunks=[];rec.ondataavailable=e=>{if(e.data&&e.data.size)chunks.push(e.data);};
+  const r0=rec;rec.onstop=()=>{clearTimeout(recTimer);toast(M8.t("Video saqlanmoqda..."));saveVideo(new Blob(chunks,{type:mt||"video/webm"}),mt);};
+  rec.start(500);toast(M8.t("Video yozilmoqda..."));cpUI();
+  playPath(()=>{try{r0.stop();}catch(e){}});
+  recTimer=setTimeout(()=>{if(PL)stopPath();else try{r0.stop();}catch(e){}},PL.dur+3000);
+});
+mtUI();cpUI();
 M8.reg("view3d",()=>{if(T3&&sunKey()!==lastKey)redo();});
 ui();
 })();

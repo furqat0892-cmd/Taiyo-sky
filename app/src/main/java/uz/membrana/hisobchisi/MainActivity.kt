@@ -71,6 +71,73 @@ class MainActivity : Activity() {
             }
         }
 
+        private var vOut: java.io.OutputStream? = null
+        private var vUri: android.net.Uri? = null
+        private var vPath: String = ""
+
+        @JavascriptInterface
+        fun videoOpen(name: String, mime: String): String {
+            return try {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    val v = ContentValues()
+                    v.put(MediaStore.Video.Media.DISPLAY_NAME, name)
+                    v.put(MediaStore.Video.Media.MIME_TYPE, mime)
+                    v.put(MediaStore.Video.Media.RELATIVE_PATH, "Movies/TaiyoSky")
+                    v.put(MediaStore.Video.Media.IS_PENDING, 1)
+                    val uri = contentResolver.insert(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, v)
+                    if (uri == null) {
+                        "ERR"
+                    } else {
+                        vUri = uri
+                        vOut = contentResolver.openOutputStream(uri)
+                        vPath = "Movies/TaiyoSky"
+                        "OK"
+                    }
+                } else {
+                    val dir = getExternalFilesDir(android.os.Environment.DIRECTORY_MOVIES)
+                    if (dir == null) {
+                        "ERR"
+                    } else {
+                        val f = File(dir, name)
+                        vOut = java.io.FileOutputStream(f)
+                        vUri = null
+                        vPath = f.absolutePath
+                        "OK"
+                    }
+                }
+            } catch (e: Exception) {
+                "ERR"
+            }
+        }
+
+        @JavascriptInterface
+        fun videoChunk(b64: String): String {
+            return try {
+                vOut?.write(Base64.decode(b64, Base64.DEFAULT))
+                "OK"
+            } catch (e: Exception) {
+                "ERR"
+            }
+        }
+
+        @JavascriptInterface
+        fun videoClose(): String {
+            return try {
+                vOut?.flush()
+                vOut?.close()
+                vOut = null
+                val u = vUri
+                if (u != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    val done = ContentValues()
+                    done.put(MediaStore.Video.Media.IS_PENDING, 0)
+                    contentResolver.update(u, done, null, null)
+                }
+                "OK:" + vPath
+            } catch (e: Exception) {
+                "ERR"
+            }
+        }
+
         @JavascriptInterface
         fun saveImage(name: String, base64: String): String {
             return try {
