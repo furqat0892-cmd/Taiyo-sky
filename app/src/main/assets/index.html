@@ -606,8 +606,11 @@ button{-webkit-tap-highlight-color:transparent}
 <div class="card cardx" id="rl-box">
   <h3>Realistik ko'rinish</h3>
   <label class="chk2"><input type="checkbox" id="rl-on" checked> Realistik rejim (osmon, soya, material)</label>
-  <div class="seg" id="rl-light"><button type="button" data-l="model">Maket</button><button type="button" data-l="day">Kunduz</button><button type="button" data-l="gold">Quyosh botishi</button><button type="button" data-l="night">Kechasi</button></div>
+  <div class="seg" id="rl-light"><button type="button" data-l="kino">Kino</button><button type="button" data-l="model">Maket</button><button type="button" data-l="day">Kunduz</button><button type="button" data-l="gold">Quyosh botishi</button><button type="button" data-l="night">Kechasi</button></div>
+  <div class="hint" style="margin:8px 0 4px">Tasvir sifati</div>
+  <div class="seg" id="rl-q"><button type="button" data-q="low">Oddiy</button><button type="button" data-q="high">Yuqori</button><button type="button" data-q="cine">Ultra</button></div>
   <label class="chk2"><input type="checkbox" id="rl-ent" checked> Daraxt va odamlar</label>
+  <label class="chk2"><input type="checkbox" id="rl-bars"> Kino ramka (keng ekran)</label>
   <div class="vrow"><button type="button" class="plain" id="rl-cam">Realistik kadr</button><button type="button" class="plain" id="rl-eye">Odam ko'zi bilan</button><button type="button" class="plain prim" id="rl-shot">Rasm olish</button></div>
   <div class="note" id="rl-note" hidden></div>
 </div>
@@ -2427,9 +2430,9 @@ function init3(){
   if(typeof THREE==="undefined"){$("#no3d").hidden=false;return false;}
   try{
     const cv=$("#cv3d");
-    const renderer=new THREE.WebGLRenderer({canvas:cv,antialias:true,alpha:true});
+    const renderer=new THREE.WebGLRenderer({canvas:cv,antialias:true,alpha:true,powerPreference:"high-performance"});
     renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,2));
-    const scene=new THREE.Scene(),camera=new THREE.PerspectiveCamera(45,1,0.1,4000);
+    const scene=new THREE.Scene(),camera=new THREE.PerspectiveCamera(42,1,0.3,6000);
     scene.add(new THREE.HemisphereLight(0xffffff,0x6f8494,0.62));
     const d1=new THREE.DirectionalLight(0xffffff,0.7);d1.position.set(60,110,50);scene.add(d1);
     const d2=new THREE.DirectionalLight(0xffffff,0.25);d2.position.set(-60,40,-60);scene.add(d2);
@@ -2437,7 +2440,7 @@ function init3(){
     T3={m5:-1,renderer,scene,camera,group,theta:0.9,phi:1.05,radius:60,target:new THREE.Vector3(),auto:true,wire:false,masts:true,op:0.9,mats:{}};
     if(window.MH3_init)window.MH3_init(T3,THREE);
     const ptr=new Map();let last=0;
-    cv.addEventListener("pointerdown",e=>{cv.setPointerCapture(e.pointerId);ptr.set(e.pointerId,{x:e.clientX,y:e.clientY});last=0;stopAuto();});
+    cv.addEventListener("pointerdown",e=>{cv.setPointerCapture(e.pointerId);ptr.set(e.pointerId,{x:e.clientX,y:e.clientY});last=0;T3.down=ptr.size;holdAuto();});
     cv.addEventListener("pointermove",e=>{
       if(!ptr.has(e.pointerId))return;
       const p=ptr.get(e.pointerId);
@@ -2445,14 +2448,15 @@ function init3(){
       ptr.set(e.pointerId,{x:e.clientX,y:e.clientY});
       if(ptr.size===2){const a=Array.from(ptr.values());const d=Math.hypot(a[0].x-a[1].x,a[0].y-a[1].y);if(last)T3.radius=clamp(T3.radius*last/d,5,2500);last=d;}
     });
-    const up=e=>{ptr.delete(e.pointerId);last=0;};
+    const up=e=>{ptr.delete(e.pointerId);last=0;T3.down=ptr.size;if(!ptr.size)T3.resumeAt=performance.now()+5000;};
     cv.addEventListener("pointerup",up);cv.addEventListener("pointercancel",up);
-    cv.addEventListener("wheel",e=>{e.preventDefault();T3.radius=clamp(T3.radius*(1+e.deltaY*0.001),5,2500);stopAuto();},{passive:false});
+    cv.addEventListener("wheel",e=>{e.preventDefault();T3.radius=clamp(T3.radius*(1+e.deltaY*0.001),5,2500);holdAuto();},{passive:false});
     new ResizeObserver(()=>size3()).observe(cv.parentElement);
     return true;
   }catch(e){$("#no3d").hidden=false;T3=null;return false;}
 }
 function stopAuto(){if(T3){T3.auto=false;$("#o-auto").checked=false;}}
+function holdAuto(){if(T3){T3.auto=false;T3.resumeAt=performance.now()+6000;}}
 function size3(){
   if(!T3)return;const p=$("#cv3d").parentElement,w=p.clientWidth,h=p.clientHeight;if(!w||!h)return;
   T3.renderer.setSize(w,h,false);T3.camera.aspect=w/h;T3.camera.updateProjectionMatrix();T3.force=true;
@@ -2465,22 +2469,31 @@ function view3(name){
   else if(name==="side"){T3.phi=1.45;T3.theta=Math.PI/2;T3.radius=m*1.6;}
   else{T3.phi=1.05;T3.theta=0.9;T3.radius=m*1.55;}
   T3.radius*=ak;
-  stopAuto();
+  T3.force=true;
 }
 function enter3D(){
   if(!init3())return;
   size3();
-  if(dirty3){update3();view3("persp");T3.auto=$("#o-auto").checked=false;}
+  if(dirty3){update3();view3("persp");T3.auto=$("#o-auto").checked=true;}
   cancelAnimationFrame(raf);loop();
 }
 function loop(){
   if(cur!=="view3d"||!T3)return;
-  if(T3.auto)T3.theta+=0.004;
-  const r=T3.radius,c=T3.camera;
-  c.position.set(T3.target.x+r*Math.sin(T3.phi)*Math.cos(T3.theta),T3.target.y+r*Math.cos(T3.phi),T3.target.z+r*Math.sin(T3.phi)*Math.sin(T3.theta));
+  const now=performance.now(),c=T3.camera;
+  if(!T3.auto&&T3.resumeAt&&now>T3.resumeAt&&!T3.down&&$("#o-auto").checked){T3.auto=true;T3.resumeAt=0;}
+  const dt=T3.t0?Math.min(0.05,(now-T3.t0)/1000):0.016;T3.t0=now;
+  if(T3.auto)T3.theta+=0.2*dt;
+  let ph=T3.phi,r=T3.radius;
+  if(T3.cine&&T3.auto){const t=now/1000;ph=clamp(ph+Math.sin(t*0.23)*0.05,0.12,1.52);r*=1+Math.sin(t*0.15)*0.03;}
+  c.position.set(T3.target.x+r*Math.sin(ph)*Math.cos(T3.theta),T3.target.y+r*Math.cos(ph),T3.target.z+r*Math.sin(ph)*Math.sin(T3.theta));
   c.lookAt(T3.target);
+  const zn=Math.max(0.3,r*0.015),zf=r+(T3.dm||4000);
   const kk=c.position.x.toFixed(2)+"|"+c.position.y.toFixed(2)+"|"+c.position.z.toFixed(2)+"|"+T3.target.y.toFixed(2)+"|"+c.aspect.toFixed(3);
-  if(T3.force||T3.kk!==kk){T3.kk=kk;T3.force=false;T3.renderer.render(T3.scene,c);}
+  if(T3.force||T3.kk!==kk){
+    if(Math.abs(c.near-zn)>0.01||Math.abs(c.far-zf)>1){c.near=zn;c.far=zf;c.updateProjectionMatrix();}
+    T3.kk=kk;T3.force=false;T3.renderer.render(T3.scene,c);
+    if(window.MH3_frame)window.MH3_frame(T3,now,dt);
+  }
   raf=requestAnimationFrame(loop);
 }
 function clear3(){
@@ -2559,7 +2572,7 @@ $$("[data-view]").forEach(b=>b.addEventListener("click",()=>view3(b.dataset.view
 $("#t5").addEventListener("input",e=>{if(T3){const v=parseInt(e.target.value,10);T3.m5=v>=S.months?-1:v;update3();}});
 $("#o-wire").addEventListener("change",e=>{if(T3){T3.wire=e.target.checked;update3();}});
 $("#o-masts").addEventListener("change",e=>{if(T3){T3.masts=e.target.checked;update3();}});
-$("#o-auto").addEventListener("change",e=>{if(T3)T3.auto=e.target.checked;});
+$("#o-auto").addEventListener("change",e=>{if(T3){T3.auto=e.target.checked;T3.resumeAt=0;}});
 $("#o-op").addEventListener("input",e=>{if(T3){T3.op=parseInt(e.target.value,10)/100;update3();}});
 try{const mq=window.matchMedia("(prefers-color-scheme: dark)");(mq.addEventListener?mq.addEventListener.bind(mq,"change"):mq.addListener.bind(mq))(()=>{dirty3=true;if(cur==="view3d")update3();drawChart();});}catch(e){}
 try{new MutationObserver(()=>{dirty3=true;if(cur==="view3d")update3();drawChart();}).observe(document.documentElement,{attributes:true,attributeFilter:["data-theme"]});}catch(e){}

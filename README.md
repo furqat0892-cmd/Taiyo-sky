@@ -69,3 +69,10 @@ Pastki menyuda "Model" bo'limi: 3D / 5D, Chizmalar, Elementlar, Varaq.
 - **Elementlar**: mato polosalari, ustunlar, tayanch plitalar, poydevorlar va kabel jadvali; modelni qoidalar bo'yicha tekshirish; material hajmi; CSV.
 - **Varaq**: A3 varaq (reja, fasad, kesim, ko'rsatkichlar, shtamp), haqiqiy masshtabda. SVG va DXF (AutoCAD) eksport.
 - Jonli dizayn: chizma chiziladigan animatsiya, bo'limlar silliq ochiladi.
+
+## v8.5: kino sifatidagi 3D
+- Yangi "Kino" yoritish rejimi (boshlang'ich): osmon, bulutlar, quyosh, tuman, tog'lar, yumshoq soyalar.
+- Yer qatlamlari bir-birining ustiga tushib "o'chib qolish" xatosi tuzatildi (kamera chuqurlik oralig'i va qatlam balandliklari).
+- Avto-aylanish qaytarildi: ekranga tegsangiz to'xtaydi, 5 soniyadan keyin o'zi davom etadi.
+- Tasvir sifati: Oddiy, Yuqori, Ultra (kino rang, donadorlik, yaltirash). Telefon sekin ishlasa, sifat o'zi pasayadi.
+- Kino ramka (keng ekran qora chiziqlar) va stadion yoritgich ustunlari.
