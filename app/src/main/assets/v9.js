@@ -571,14 +571,15 @@ function init(){
   $("#free-ed").insertAdjacentHTML("beforeend",HTML);
   const q=ff(),T=mat();
   if(!q.s)q.s=T.p0||3;if(!q.rw)q.rw=T.rollW||2.5;
-  const shape=()=>{H().refresh();};
+  let dT=0;const defer=ms=>{clearTimeout(dT);dT=setTimeout(()=>H().refresh(),ms);};
+  const shape=()=>defer(160);
   const bind=(id,key,fn,num)=>{const e=$("#"+id);e.addEventListener(e.type==="checkbox"?"change":"input",()=>{const v=e.type==="checkbox"?e.checked:parseFloat(e.value);ff()[key]=v;if(fn)fn();});};
   bind("ff-on","on",shape);bind("ff-ratio","ratio",shape);bind("ff-ang","ang",shape);bind("ff-cab","cab",shape);bind("ff-cr","cr",shape);
-  const light=()=>{H().refresh();};
+  const light=()=>defer(70);
   bind("ff-s","s",light);bind("ff-ps","ps",light);bind("ff-pw","pw",light);
   bind("pt-rw","rw",light);bind("pt-cmp","cmp",light);bind("pt-seam","seams",light);
-  $("#ff-map").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;ff().map=b.dataset.m;light();});
-  $("#pt-axis").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;ff().axis=b.dataset.a;light();});
+  $("#ff-map").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;ff().map=b.dataset.m;Array.from($("#ff-map").children).forEach(x=>x.setAttribute("aria-pressed",String(x===b)));light();});
+  $("#pt-axis").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;ff().axis=b.dataset.a;Array.from($("#pt-axis").children).forEach(x=>x.setAttribute("aria-pressed",String(x===b)));light();});
   $("#pt-go").addEventListener("click",()=>{
     const b=$("#pt-go"),g=H().R.g,qq=ff();b.disabled=true;b.textContent=tr("Hisoblanmoqda...");
     setTimeout(()=>{

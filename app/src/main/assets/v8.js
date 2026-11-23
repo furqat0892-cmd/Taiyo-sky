@@ -822,7 +822,7 @@ window.MH3_post=(t3,P5,g,T,S,three)=>{
 const sunKey=()=>{const v=M8.V();return [st.on,st.light,st.ent,v.hour,v.day,v.orient,v.city].join("|");};
 
 /* ---------- boshqaruv ---------- */
-function redo(){const e=$("#o-op");if(e)e.dispatchEvent(new Event("input"));}
+let rdT=0;function redo(){if(rdT)return;rdT=setTimeout(()=>{rdT=0;const e=$("#o-op");if(e)e.dispatchEvent(new Event("input"));},70);}
 function ui(){
   $("#rl-on").checked=st.on;$("#rl-ent").checked=st.ent;
   $$("#rl-light button").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.l===st.light)));

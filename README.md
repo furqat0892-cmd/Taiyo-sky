@@ -87,3 +87,7 @@ Erkin shakl bo'limiga uchta yangi blok qo'shildi (yangi fayl: `v9.js`).
 - **Tahlil xaritasi**: qiyalik (suv to'planishi), egrilik, qor yuki va shamol so'rishi zaxirasi (yuk = taranglik × egrilik), yoyilma deformatsiyasi. Xarita sahifada va 3D bo'limida membrana ustida ko'rinadi. Bu dastlabki loyiha uchun taxminiy hisob, qurilish hisobi emas.
 - **Bichim naqshi**: membrana tasmalarga bo'linadi (mato eniga qarab), har tasma tekislikka yoyiladi, kompensatsiya beriladi. SVG va DXF (mm) eksport, tikuv chiziqlari 3D da ko'rinadi. Ustun uchi yaqinidagi panellar qizil belgilanadi (naqsh taxminiy).
 - Form-finding yangi erkin shakllarda standart holatda yoqilgan; o'chirsangiz eski oddiy interpolyatsiya ishlaydi.
+
+## v9.1: menyu tuzatishi
+- Ko'p tugmali menyular (yoritish rejimi va boshqalar) ekran kengligidan chiqib ketmaydi: tugmalar ikki qatorga o'tadi, ko'k tanlov o'z joyida turadi.
+- Tugma bosilganda ko'k rang darrov o'zgaradi, og'ir 3D qayta hisobi undan keyin bajariladi (qotish kamaydi). Form-finding sozlamalari ham kechiktirib hisoblanadi.
