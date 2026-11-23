@@ -80,3 +80,10 @@ Pastki menyuda "Model" bo'limi: 3D / 5D, Chizmalar, Elementlar, Varaq.
 ## v8.6: material tanlash va kamera yo'li
 - 3D bo'limida membrana rangi, yaltirash, shaffoflik va ustun/kabel materiali (Oq, Po'lat, Qora, Oltin).
 - Kamera yo'li: kadrlar qo'shib, silliq harakatni ko'rish va videoga yozish (Movies/TaiyoSky). Kadr bo'lmasa, loyiha atrofida to'liq aylanadi.
+
+## v9.0: form-finding, xaritalar va bichim naqshi (Rhino/Grasshopper'dan kerakli qismi)
+Erkin shakl bo'limiga uchta yangi blok qo'shildi (yangi fayl: `v9.js`).
+- **Form-finding**: oldindan tortilgan matoning muvozanat shakli dinamik relaksatsiya bilan hisoblanadi (Kangaroo'dagi kabi). Arqoq/ip taranglik nisbati, arqoq yo'nalishi va erkin chegara arqoni (chekka ichkariga egilishi) sozlanadi.
+- **Tahlil xaritasi**: qiyalik (suv to'planishi), egrilik, qor yuki va shamol so'rishi zaxirasi (yuk = taranglik × egrilik), yoyilma deformatsiyasi. Xarita sahifada va 3D bo'limida membrana ustida ko'rinadi. Bu dastlabki loyiha uchun taxminiy hisob, qurilish hisobi emas.
+- **Bichim naqshi**: membrana tasmalarga bo'linadi (mato eniga qarab), har tasma tekislikka yoyiladi, kompensatsiya beriladi. SVG va DXF (mm) eksport, tikuv chiziqlari 3D da ko'rinadi. Ustun uchi yaqinidagi panellar qizil belgilanadi (naqsh taxminiy).
+- Form-finding yangi erkin shakllarda standart holatda yoqilgan; o'chirsangiz eski oddiy interpolyatsiya ishlaydi.

@@ -11,8 +11,8 @@ android {
         applicationId = "uz.membrana.hisobchisi"
         minSdk = 24
         targetSdk = 34
-        versionCode = 12
-        versionName = "8.6"
+        versionCode = 13
+        versionName = "9.0"
     }
 
     buildTypes {

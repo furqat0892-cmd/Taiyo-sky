@@ -1012,6 +1012,7 @@ button{-webkit-tap-highlight-color:transparent}
 
 <script src="v8-i18n.js"></script>
 <script src="three.min.js"></script>
+<script src="v9.js"></script>
 <script>
 (function(){
 "use strict";
@@ -1179,7 +1180,7 @@ function freeSync(){
   S.Hr=Math.max(0.5,r1(top-Math.min(...hs)));
 }
 function freeMesh(s){
-  const F=s.free||FREE0(),key=JSON.stringify([F.pts,F.masts]);
+  const F=s.free||FREE0(),key=JSON.stringify([F.pts,F.masts,window.MH9?MH9.ffKey(F):0]);
   if(FREEC.k===key)return FREEC.v;
   let v=freeMesh0(F);
   if(v.bad){const d=freeMesh0(FREE0());d.bad=v.bad;v=d;}
@@ -1246,6 +1247,7 @@ function freeMesh0(F){
     for(let i=0;i<nv;i++){if(bnd[i]||pin.has(i))continue;let sz=0;for(const j of NB[i])sz+=V[j][2];const nz=V[i][2]+1.7*(sz/NB[i].length-V[i][2]);md=Math.max(md,Math.abs(nz-V[i][2]));V[i][2]=nz;}
     if(md<1e-5)break;
   }
+  if(window.MH9){const ff=MH9.params(F);if(ff.on){try{out.ff=MH9.relax({V,T,bnd,pin,n,BE,ff});}catch(e){out.ff=null;}}}
   const xs=P.map(p=>p[0]),ys=P.map(p=>p[1]),cx=(Math.min(...xs)+Math.max(...xs))/2,cy=(Math.min(...ys)+Math.max(...ys))/2;
   for(let i=0;i<nv;i++)out.pos.push(V[i][0]-cx,V[i][2],V[i][1]-cy);
   for(const t of T)out.idx.push(t[0],t[2],t[1]);
