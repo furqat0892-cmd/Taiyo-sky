@@ -483,12 +483,13 @@ $("#set-rupd").addEventListener("click",()=>{const n=$("#set-rnote");n.textConte
 /* tayyor namunalar */
 M8.PRE={
   sa_tree:{shape:"umb",region:"sa",mtype:"PTFE",L:28,W:28,Hb:5,Hr:3.5,months:6,V:28,sk:0},
+  sa_sidra:{shape:"free",region:"sa",mtype:"PTFE",months:14,V:28,sk:0,_free:{pts:[[10.5, -3.3, 5.5], [16.0, 0.0, 9], [10.5, 3.3, 5.5], [6.5, 3.8, 4], [8.1, 7.5, 5.5], [8.0, 13.9, 9], [2.4, 10.7, 5.5], [-0.0, 7.5, 4], [-2.4, 10.7, 5.5], [-8.0, 13.9, 9], [-8.1, 7.5, 5.5], [-6.5, 3.7, 4], [-10.5, 3.3, 5.5], [-16.0, 0.0, 9], [-10.5, -3.3, 5.5], [-6.5, -3.8, 4], [-8.1, -7.5, 5.5], [-8.0, -13.9, 9], [-2.4, -10.7, 5.5], [0.0, -7.5, 4], [2.4, -10.7, 5.5], [8.0, -13.9, 9], [8.1, -7.5, 5.5], [6.5, -3.7, 4]],masts:[[0,0,18]]}},
   sa_stad:{shape:"stad",region:"sa",mtype:"PTFE",L:200,W:160,Hb:24,Hr:15,ri:0.6,months:20,V:28,sk:0},
   jp_arch:{shape:"arch",region:"jp",mtype:"PTFE",L:60,W:36,Hb:9,Hr:8,months:12,V:35,sk:0.6},
   uz_hypar:{shape:"hypar",region:"uz",mtype:"PVC",L:30,W:22,Hb:4.5,Hr:6.5,months:7,V:25,sk:0.5}
 };
 $("#presets2").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;const p=M8.PRE[b.dataset.p2];if(!p)return;
-  const S=MH.S;Object.assign(S,p);S.v8=null;MH.syncFields();MH.refresh("preset");MH.show("proj");});
+  const S=MH.S;Object.assign(S,p);if(p._free){S.free=JSON.parse(JSON.stringify(p._free));delete S._free;}S.v8=null;MH.syncFields();MH.refresh("preset");MH.show("proj");});
 M8.init();
 })();
 

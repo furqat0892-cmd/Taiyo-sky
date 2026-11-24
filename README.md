@@ -91,3 +91,7 @@ Erkin shakl bo'limiga uchta yangi blok qo'shildi (yangi fayl: `v9.js`).
 ## v9.1: menyu tuzatishi
 - Ko'p tugmali menyular (yoritish rejimi va boshqalar) ekran kengligidan chiqib ketmaydi: tugmalar ikki qatorga o'tadi, ko'k tanlov o'z joyida turadi.
 - Tugma bosilganda ko'k rang darrov o'zgaradi, og'ir 3D qayta hisobi undan keyin bajariladi (qotish kamaydi). Form-finding sozlamalari ham kechiktirib hisoblanadi.
+
+## v9.2
+- Yangi namuna: "Saudiya: daraxt-barg (Sidra)" — 6 bargli, markaziy ustunli membrana tom (taxminiy o'lchamlar).
+- Saudiya hududi uchun iqlim eslatmasi (issiqlik, UV, qum; SBC 301 bo'yicha tasdiqlash).

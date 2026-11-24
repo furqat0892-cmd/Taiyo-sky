@@ -428,6 +428,7 @@ button{-webkit-tap-highlight-color:transparent}
   <h3>Hududiy namunalar</h3>
   <div class="seg presets" id="presets2">
     <button type="button" data-p2="sa_tree"><svg viewBox="0 0 48 32" aria-hidden="true"><use href="#s-umb"/></svg><span>Saudiya: daraxtsimon soyabon</span></button>
+    <button type="button" data-p2="sa_sidra"><svg viewBox="0 0 48 32" aria-hidden="true"><use href="#s-free"/></svg><span>Saudiya: daraxt-barg (Sidra)</span></button>
     <button type="button" data-p2="sa_stad"><svg viewBox="0 0 48 32" aria-hidden="true"><use href="#s-stad"/></svg><span>Saudiya: stadion</span></button>
     <button type="button" data-p2="jp_arch"><svg viewBox="0 0 48 32" aria-hidden="true"><use href="#s-arch"/></svg><span>Yaponiya: sport zali</span></button>
     <button type="button" data-p2="uz_hypar"><svg viewBox="0 0 48 32" aria-hidden="true"><use href="#s-hypar"/></svg><span>O'zbekiston: pavilyon</span></button>
@@ -2379,6 +2380,7 @@ function renderMethod(){
   if(S.mtype==="ETFE")L.push(["4","ETFE: yostiq ichki bosimi tizimi va yopishqoq-plastik material xatti-harakati bo'yicha maxsus tahlil."]);
   if(S.region==="jp")L.push(["!","Yaponiya: Building Standard Law bo'yicha membrana konstruksiyalar alohida ekspertizadan o'tadi."]);
   else L.push(["!","Mahalliy me'yor, shamol va qor ma'lumotlari uchun mahalliy muhandis; xalqaro standartdan (CEN/TS 19102, ASCE 55) foydalanish buyurtmachi bilan kelishiladi."]);
+  if(S.region==="sa")L.push(["!","Saudiya iqlimi (taxminiy, aniqlanishi kerak): yozda harorat juda baland, UV kuchli, qum va chang membranani kirlatadi. Material (PTFE/ETFE) kirga chidamli qoplama bilan tanlanadi, tozalash rejalashtiriladi. Shamol, harorat va yuklamalar SBC 301 bo'yicha mahalliy muhandis bilan tasdiqlanadi."]);
   if(S.shape==="stad")L.push(["!","Stadion: seysmik va yong'in ssenariylari alohida tahlil qilinadi (CEN/TS 19102 seysmikni qamramaydi)."]);
   $("#method-dyn").innerHTML=L.map(x=>'<div class="lv"><b>'+x[0]+'</b><span>'+x[1]+'</span></div>').join("");
 }
