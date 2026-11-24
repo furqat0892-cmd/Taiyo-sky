@@ -93,5 +93,8 @@ Erkin shakl bo'limiga uchta yangi blok qo'shildi (yangi fayl: `v9.js`).
 - Tugma bosilganda ko'k rang darrov o'zgaradi, og'ir 3D qayta hisobi undan keyin bajariladi (qotish kamaydi). Form-finding sozlamalari ham kechiktirib hisoblanadi.
 
 ## v9.2
-- Yangi namuna: "Saudiya: daraxt-barg (Sidra)" — 6 bargli, markaziy ustunli membrana tom (taxminiy o'lchamlar).
+- Yangi shakl "Daraxt-barg" (markaziy tana + 2 qavat barg) va namuna "Saudiya: daraxt-barg (Sidra)" (taxminiy o'lchamlar).
 - Saudiya hududi uchun iqlim eslatmasi (issiqlik, UV, qum; SBC 301 bo'yicha tasdiqlash).
+
+## v9.3
+- "Haqiqiy rasm (AI)": 3D ko'rinishdan ekran rasmi olinib, Gemini rasm modeliga yuboriladi; natija telefonga saqlanadi (internet va "AI" bo'limidagi API kalit kerak).

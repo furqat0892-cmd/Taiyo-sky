@@ -407,15 +407,16 @@ function ctxText(){
 const SYS="Sen tortilgan membrana konstruksiyalari bo'yicha tajribali muhandis-maslahatchisan. Foydalanuvchi ilovasidagi loyiha ma'lumotlari quyida berilgan. Qisqa, aniq, amaliy javob ber. Javob tilini foydalanuvchi savol tili bilan bir xil qil. Aniq bilmagan narsani taxmin ekanini ayt. Yakuniy qaror muhandis hisobiga bog'liqligini zarur joyda eslat. ";
 let httpSeq=0;const httpCB={};
 window.__mhHttp=(id,status,body)=>{const f=httpCB[id];if(f){delete httpCB[id];f(status,body);}};
-function httpReq(method,url,body,headers){
+function httpReq(method,url,body,headers,nofb){
   return new Promise((res,rej)=>{
     if(window.AndroidApp&&window.AndroidApp.httpReq){const id=++httpSeq;let got=false;httpCB[id]=(s,b)=>{got=true;res({status:s,text:b});};
       try{window.AndroidApp.httpReq(id,method,url,body||"",JSON.stringify(headers||{}));}catch(e){rej(e);return;}
-      setTimeout(()=>{if(got)return;fetch(url,{method:method,headers:headers,body:method==="GET"?undefined:body}).then(r=>r.text().then(x=>{if(!got){got=true;res({status:r.status,text:x});}})).catch(()=>{});},12000);
+      if(!nofb)setTimeout(()=>{if(got)return;fetch(url,{method:method,headers:headers,body:method==="GET"?undefined:body}).then(r=>r.text().then(x=>{if(!got){got=true;res({status:r.status,text:x});}})).catch(()=>{});},12000);
       return;}
     fetch(url,{method:method,headers:headers,body:method==="GET"?undefined:body}).then(r=>r.text().then(x=>res({status:r.status,text:x}))).catch(rej);
   });
 }
+M8.httpReq=httpReq;
 function md(s){
   let h=esc(s);
   h=h.replace(/\*\*(.+?)\*\*/g,"<b>$1</b>").replace(/^\s*[-*]\s+(.+)$/gm,"• $1").replace(/\n/g,"<br>");return h;
@@ -483,7 +484,7 @@ $("#set-rupd").addEventListener("click",()=>{const n=$("#set-rnote");n.textConte
 /* tayyor namunalar */
 M8.PRE={
   sa_tree:{shape:"umb",region:"sa",mtype:"PTFE",L:28,W:28,Hb:5,Hr:3.5,months:6,V:28,sk:0},
-  sa_sidra:{shape:"free",region:"sa",mtype:"PTFE",months:14,V:28,sk:0,_free:{pts:[[10.5, -3.3, 5.5], [16.0, 0.0, 9], [10.5, 3.3, 5.5], [6.5, 3.8, 4], [8.1, 7.5, 5.5], [8.0, 13.9, 9], [2.4, 10.7, 5.5], [-0.0, 7.5, 4], [-2.4, 10.7, 5.5], [-8.0, 13.9, 9], [-8.1, 7.5, 5.5], [-6.5, 3.7, 4], [-10.5, 3.3, 5.5], [-16.0, 0.0, 9], [-10.5, -3.3, 5.5], [-6.5, -3.8, 4], [-8.1, -7.5, 5.5], [-8.0, -13.9, 9], [-2.4, -10.7, 5.5], [0.0, -7.5, 4], [2.4, -10.7, 5.5], [8.0, -13.9, 9], [8.1, -7.5, 5.5], [6.5, -3.7, 4]],masts:[[0,0,18]]}},
+  sa_sidra:{shape:"tree",region:"sa",mtype:"PTFE",L:32,W:32,Hb:8,Hr:11,months:14,V:28,sk:0},
   sa_stad:{shape:"stad",region:"sa",mtype:"PTFE",L:200,W:160,Hb:24,Hr:15,ri:0.6,months:20,V:28,sk:0},
   jp_arch:{shape:"arch",region:"jp",mtype:"PTFE",L:60,W:36,Hb:9,Hr:8,months:12,V:35,sk:0.6},
   uz_hypar:{shape:"hypar",region:"uz",mtype:"PVC",L:30,W:22,Hb:4.5,Hr:6.5,months:7,V:25,sk:0.5}
@@ -846,6 +847,15 @@ const camM=()=>{cam(0.95,0.78,MH.S.shape==="stad"?2.45:2.9);if(T3)T3.target.y=-M
 $("#rl-eye").addEventListener("click",()=>{if(!T3)return;const m=Math.max(MH.S.L,MH.S.W),g=MH.R.g;
   T3.target.set(0,Math.min(g.maxY*0.55,6),0);T3.phi=1.5;T3.theta=0.9;T3.radius=Math.max(8,m*0.75);T3.force=true;});
 function toast(msg){const n=$("#rl-note");n.hidden=false;n.textContent=msg;}
+M8.capture=function(W0,mime){
+  if(!T3)return null;const r=T3.renderer,cv=r.domElement,w=cv.clientWidth,h=cv.clientHeight;if(!w||!h)return null;
+  const pr=r.getPixelRatio();let out=null;
+  try{const W=W0||1024,Hh=Math.round(W*h/w);r.setPixelRatio(1);r.setSize(W,Hh,false);r.render(T3.scene,T3.camera);
+    const o=document.createElement("canvas");o.width=W;o.height=Hh;o.getContext("2d").drawImage(cv,0,0);out={url:o.toDataURL(mime||"image/jpeg",0.88),w:w,h:h};}
+  catch(e){out=null;}
+  try{r.setPixelRatio(pr);r.setSize(w,h,false);T3.force=true;}catch(e){}
+  return out;
+};
 $("#rl-shot").addEventListener("click",()=>{
   if(!T3)return;const r=T3.renderer,cv=r.domElement,w=cv.clientWidth,h=cv.clientHeight;if(!w||!h)return;
   try{

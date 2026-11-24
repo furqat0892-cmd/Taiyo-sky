@@ -202,7 +202,7 @@ class MainActivity : Activity() {
                     val c = URL(url).openConnection() as HttpURLConnection
                     c.requestMethod = method
                     c.connectTimeout = 15000
-                    c.readTimeout = 90000
+                    c.readTimeout = 150000
                     val h = JSONObject(headersJson)
                     val keys = h.keys()
                     while (keys.hasNext()) {
