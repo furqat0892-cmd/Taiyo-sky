@@ -17,6 +17,8 @@ import android.os.Bundle
 import android.provider.MediaStore
 import android.webkit.JavascriptInterface
 import android.webkit.WebChromeClient
+import android.webkit.ValueCallback
+import android.net.Uri
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import java.io.File
@@ -226,6 +228,16 @@ class MainActivity : Activity() {
         }
     }
 
+    private var fileCb: ValueCallback<Array<Uri>>? = null
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == 77) {
+            val r = if (resultCode == RESULT_OK && data != null) WebChromeClient.FileChooserParams.parseResult(resultCode, data) else null
+            fileCb?.onReceiveValue(r)
+            fileCb = null
+        }
+    }
+
     private var stoppedAt = 0L
     override fun onStop() { super.onStop(); stoppedAt = System.currentTimeMillis() }
     override fun onStart() { super.onStart(); if (stoppedAt == 0L || System.currentTimeMillis() - stoppedAt > 5000) taiyosky.intro.IntroView.show(this, force = true) }
@@ -239,7 +251,22 @@ class MainActivity : Activity() {
         web.settings.domStorageEnabled = true   // kiritilgan ma'lumotlar saqlanishi uchun
         web.addJavascriptInterface(Bridge(), "AndroidApp")
         web.webViewClient = WebViewClient()
-        web.webChromeClient = WebChromeClient()
+        web.webChromeClient = object : WebChromeClient() {
+            override fun onShowFileChooser(w: WebView?, cb: ValueCallback<Array<Uri>>?, params: FileChooserParams?): Boolean {
+                fileCb?.onReceiveValue(null)
+                fileCb = cb
+                return try {
+                    val i = Intent(Intent.ACTION_GET_CONTENT)
+                    i.addCategory(Intent.CATEGORY_OPENABLE)
+                    i.type = "image/*"
+                    startActivityForResult(Intent.createChooser(i, "Rasm"), 77)
+                    true
+                } catch (e: Exception) {
+                    fileCb = null
+                    false
+                }
+            }
+        }
         setContentView(web)
         web.loadUrl("file:///android_asset/index.html")
     }

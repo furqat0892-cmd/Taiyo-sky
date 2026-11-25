@@ -98,3 +98,7 @@ Erkin shakl bo'limiga uchta yangi blok qo'shildi (yangi fayl: `v9.js`).
 
 ## v9.3
 - "Haqiqiy rasm (AI)": 3D ko'rinishdan ekran rasmi olinib, Gemini rasm modeliga yuboriladi; natija telefonga saqlanadi (internet va "AI" bo'limidagi API kalit kerak).
+
+## v9.4
+- "Loyiha rasmlari": telefondan rasm (Gemini/ChatGPT natijasi) qo'shish; tanlangan rasm hisobotning tepasiga qo'yiladi. Rasmlar telefonda saqlanadi.
+- Android: rasm tanlash oynasi (MainActivity.onShowFileChooser).

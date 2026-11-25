@@ -326,6 +326,7 @@ function reportHTML(){
   +'.k{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.k div{border:1px solid #D5DCEB;border-radius:6px;padding:8px}.k b{display:block;font-size:15px}.k span{font-size:10px;color:#5B6785}'
   +'.dr{display:grid;grid-template-columns:1fr 1fr;gap:10px}.dr svg{border:1px solid #D5DCEB;border-radius:6px}.f{margin-top:18px;font-size:10px;color:#5B6785;border-top:1px solid #D5DCEB;padding-top:6px}</style></head><body>'
   +'<div class="hd"><h1>'+esc(title)+'</h1><p>'+esc(t("Membrana hisobchisi"))+' · '+esc(au)+' · '+esc(dt)+'</p></div>'
+  +(M8.heroImg?'<img src="'+M8.heroImg+'" style="width:100%;max-height:150mm;object-fit:cover;border-radius:8px;margin-top:10px" alt="">':'')
   +'<h2>'+t("Asosiy ko'rsatkichlar")+'</h2><div class="k">'
   +'<div><b>'+fmt(R.gross)+' m²</b><span>'+t("Membrana")+'</span></div><div><b>'+usd(R.price)+'</b><span>'+t("Narx")+'</span></div><div><b>'+usd(R.profit)+'</b><span>'+t("Foyda")+'</span></div>'
   +'<div><b>'+fmt(g.plan)+' m²</b><span>'+t("Reja maydoni")+'</span></div><div><b>'+fmt(m.eta*100)+'%</b><span>'+t("Kuchlanish ishlatilishi")+'</span></div><div><b>'+fmt(R.mc.p80)+' $</b><span>'+t("Tannarx P80 (USD)")+'</span></div></div>'
