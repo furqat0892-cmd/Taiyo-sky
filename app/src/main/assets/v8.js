@@ -485,7 +485,7 @@ $("#set-rupd").addEventListener("click",()=>{const n=$("#set-rnote");n.textConte
 /* tayyor namunalar */
 M8.PRE={
   sa_tree:{shape:"umb",region:"sa",mtype:"PTFE",L:28,W:28,Hb:5,Hr:3.5,months:6,V:28,sk:0},
-  sa_sidra:{shape:"tree",region:"sa",mtype:"PTFE",L:32,W:32,Hb:8,Hr:11,months:14,V:28,sk:0},
+  sa_sidra:{shape:"tree",region:"sa",mtype:"PTFE",L:34,W:34,Hb:7,Hr:12,months:14,V:28,sk:0},
   sa_stad:{shape:"stad",region:"sa",mtype:"PTFE",L:200,W:160,Hb:24,Hr:15,ri:0.6,months:20,V:28,sk:0},
   jp_arch:{shape:"arch",region:"jp",mtype:"PTFE",L:60,W:36,Hb:9,Hr:8,months:12,V:35,sk:0.6},
   uz_hypar:{shape:"hypar",region:"uz",mtype:"PVC",L:30,W:22,Hb:4.5,Hr:6.5,months:7,V:25,sk:0.5}

@@ -102,3 +102,11 @@ Erkin shakl bo'limiga uchta yangi blok qo'shildi (yangi fayl: `v9.js`).
 ## v9.4
 - "Loyiha rasmlari": telefondan rasm (Gemini/ChatGPT natijasi) qo'shish; tanlangan rasm hisobotning tepasiga qo'yiladi. Rasmlar telefonda saqlanadi.
 - Android: rasm tanlash oynasi (MainActivity.onShowFileChooser).
+
+## v9.5
+- "Daraxt-barg" shakli 3 qavatli qilindi (keng pastki, o'rta, tik yuqori barglar); namuna 34 m, Hb 7, Hr 12.
+
+## v10.0
+- "Yuklama tahlili" (3D bo'limi): shamol bosimi/so'rishi, qor va qor+shamol holatlari. Natija: eng katta siljish, taranglik, bo'shashgan/ajin maydon, tayanch reaksiyalari, ag'darish momenti.
+- 3D da rangli xarita (siljish, taranglik, bo'shashish), siljigan shakl va reaksiya o'qlari.
+- Yadro: oldindan tortilgan membrananing (CST, to'liq Lagrange) dinamik relaksatsiyasi; shaklga mos oldindan taranglik avtomatik topiladi. Taxminiy.

@@ -1308,7 +1308,7 @@ function build(s){
     rect((u,v)=>Hb+Hr*(u*u+v*v)/2);
     sup.push({x:0,z:0,top:Hb,k:"main"});
   }else if(s.shape==="tree"){
-    const NS=14,NW=8,R=L/2,tiers=[{n:6,R:R,b:Hb,rs:Hr,off:0,wd:0.5},{n:6,R:R*0.66,b:Hb+Hr*0.9,rs:Hr*0.8,off:Math.PI/6,wd:0.46}];
+    const NS=14,NW=8,R=L/2,tiers=[{n:8,R:R,b:Hb,rs:Hr*0.35,off:0,wd:0.55},{n:6,R:R*0.72,b:Hb+Hr*0.45,rs:Hr*0.75,off:Math.PI/6,wd:0.5},{n:6,R:R*0.46,b:Hb+Hr*1.15,rs:Hr*0.95,off:0,wd:0.42}];
     let topY=Hb;
     tiers.forEach(T=>{for(let k=0;k<T.n;k++){
       const th=T.off+2*Math.PI*k/T.n,cx=Math.cos(th),sz=Math.sin(th),base=pos.length/3,hwMax=T.R*Math.sin(Math.PI/T.n)*1.55*T.wd/0.5;
@@ -1318,7 +1318,7 @@ function build(s){
       for(let j=0;j<NS;j++)for(let i=0;i<NW;i++){const a=base+j*(NW+1)+i,b=a+1,c=a+NW+1,d=c+1;idx.push(a,c,b,b,c,d);}
       const lp=[];for(let j=0;j<=NS;j++)lp.push(base+j*(NW+1));for(let i=1;i<=NW;i++)lp.push(base+NS*(NW+1)+i);for(let j=NS-1;j>=0;j--)lp.push(base+j*(NW+1)+NW);loops.push(lp);
       topY=Math.max(topY,T.b+T.rs);}});
-    sup.push({x:0,z:0,top:Hb+Hr*1.15,k:"main"});
+    sup.push({x:0,z:0,top:Hb+Hr*2.0,k:"main"});
     plan=Math.PI*R*R*0.55;
   }else if(s.shape==="free"){
     const f=freeMesh(s);
@@ -2639,6 +2639,7 @@ document.querySelectorAll(".nav button").forEach(b=>b.addEventListener("click",(
 <script src="qr.js"></script>
 <script src="v8.js"></script>
 <script src="vr.js"></script>
+<script src="v10.js"></script>
 
 </body>
 </html>
