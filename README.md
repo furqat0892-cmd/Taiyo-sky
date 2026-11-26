@@ -110,3 +110,8 @@ Erkin shakl bo'limiga uchta yangi blok qo'shildi (yangi fayl: `v9.js`).
 - "Yuklama tahlili" (3D bo'limi): shamol bosimi/so'rishi, qor va qor+shamol holatlari. Natija: eng katta siljish, taranglik, bo'shashgan/ajin maydon, tayanch reaksiyalari, ag'darish momenti.
 - 3D da rangli xarita (siljish, taranglik, bo'shashish), siljigan shakl va reaksiya o'qlari.
 - Yadro: oldindan tortilgan membrananing (CST, to'liq Lagrange) dinamik relaksatsiyasi; shaklga mos oldindan taranglik avtomatik topiladi. Taxminiy.
+
+## v10.1
+- **Bichim qo'shimchalari** (erkin shakldan tashqari barcha shakllar): chok zaxirasi (mm), panel raqami va o'lchami, ip yo'nalishi strelkasi, mato rulonida joylashtirish (rulon uzunligi, mato sarfi, chiqindi %, rulonlar soni, material narxi). SVG va DXF (CUT / SEW / LABEL qatlamlari) eksport.
+- **Optimallashtirish**: balandlik (Hr, Hb) bo'yicha 35 gacha variant tez hisoblanadi (narx, zaxira η, maydon), rangli xarita; eng yaxshi 3 tasi uchun to'liq yuklama tahlili; eng yaxshisi uchun oldindan taranglik tanlanadi. Maqsad: eng arzon / eng ishonchli / muvozanat. "Qo'llash" tugmasi natijani loyihaga o'tkazadi.
+- Taxminiy, konsept darajasida. Yuklama tahlili yaqinlashmasa (masalan erkin chekkali arka), dastur buni aytadi.

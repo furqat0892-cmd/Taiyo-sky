@@ -301,5 +301,5 @@ function init(){
   const old=window.MH3_post;window.MH3_post=function(){if(old)old.apply(this,arguments);try{post3d.apply(null,arguments);}catch(e){}};
 }
 window.addEventListener("load",()=>setTimeout(()=>setTimeout(init,0),50));
-window.MH10={createSolver:createSolver,cmap:cmap,st:st,run:run};
+window.MH10={createSolver:createSolver,cmap:cmap,st:st,run:run,caseParams:caseParams};
 })();

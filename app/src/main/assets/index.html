@@ -2620,7 +2620,7 @@ $("#o-op").addEventListener("input",e=>{if(T3){T3.op=parseInt(e.target.value,10)
 try{const mq=window.matchMedia("(prefers-color-scheme: dark)");(mq.addEventListener?mq.addEventListener.bind(mq,"change"):mq.addListener.bind(mq))(()=>{dirty3=true;if(cur==="view3d")update3();drawChart();});}catch(e){}
 try{new MutationObserver(()=>{dirty3=true;if(cur==="view3d")update3();drawChart();}).observe(document.documentElement,{attributes:true,attributeFilter:["data-theme"]});}catch(e){}
 
-window.MH={$:$,$$:$$,clamp:clamp,get S(){return S},get R(){return R},get cur(){return cur},refresh:refresh,syncFields:syncFields,applyState:applyState,save:save,fmt:fmt,fmt1:fmt1,usd:usd,usdK:usdK,tr:tr,exportFile:exportFile,SHAPES:SHAPES,REG:REG,drawView:drawView,gbox:gbox,PAL_PR:PAL_PR,DEF:DEF,PRESETS:PRESETS,show:show,go:go};
+window.MH={$:$,$$:$$,clamp:clamp,get S(){return S},get R(){return R},get cur(){return cur},refresh:refresh,syncFields:syncFields,applyState:applyState,save:save,fmt:fmt,fmt1:fmt1,usd:usd,usdK:usdK,tr:tr,exportFile:exportFile,SHAPES:SHAPES,REG:REG,drawView:drawView,gbox:gbox,PAL_PR:PAL_PR,DEF:DEF,PRESETS:PRESETS,show:show,go:go,build:build,compute:compute};
 /* ---------- Boshlash ---------- */
 try{const sv=localStorage.getItem("mh-lang");if(sv==="uz"||sv==="en"||sv==="ja")LANG=sv;else{const nl=(navigator.language||"").slice(0,2);if(nl==="ja")LANG="ja";else if(nl==="en")LANG="en";}}catch(e){}
 $$("#lang button").forEach(b=>b.addEventListener("click",()=>setLang(b.dataset.lang)));
@@ -2640,6 +2640,7 @@ document.querySelectorAll(".nav button").forEach(b=>b.addEventListener("click",(
 <script src="v8.js"></script>
 <script src="vr.js"></script>
 <script src="v10.js"></script>
+<script src="v10b.js"></script>
 
 </body>
 </html>
